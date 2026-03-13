@@ -370,11 +370,10 @@ def upsert_work(conn: sqlite3.Connection, work: dict[str, Any]) -> int:
       journal_ref=COALESCE(excluded.journal_ref, works.journal_ref),
       doi=COALESCE(works.doi, excluded.doi),
       last_seen_at=excluded.last_seen_at
-    RETURNING work_id;
     """
 
-    def run(doi_value: str | None) -> sqlite3.Row | None:
-        return conn.execute(
+    def run(doi_value: str | None) -> None:
+        conn.execute(
             sql,
             (
                 work["arxiv_id"],
@@ -392,15 +391,17 @@ def upsert_work(conn: sqlite3.Connection, work: dict[str, Any]) -> int:
                 now,
                 now,
             ),
-        ).fetchone()
+        )
 
     try:
-        row = run(work.get("doi"))
+        run(work.get("doi"))
     except sqlite3.IntegrityError:
         # DOI is optional and can occasionally collide due to upstream metadata errors.
-        row = run(None)
+        run(None)
+
+    row = conn.execute("SELECT work_id FROM works WHERE arxiv_id = ?;", (work["arxiv_id"],)).fetchone()
     if row is None:
-        raise RuntimeError("upsert_work: missing RETURNING row")
+        raise RuntimeError("upsert_work: missing work row after upsert")
     work_id = int(row["work_id"])
 
     # Replace authors to preserve ordering (simplest and deterministic).
@@ -644,14 +645,13 @@ def cmd_search(args: argparse.Namespace) -> int:
         ensure_initialized(conn)
         record_fetch(conn, kind="arxiv_api_search", url=url, status=status, body=body)
 
-        search_row = conn.execute(
+        cursor = conn.execute(
             """
             INSERT INTO searches(
               requested_at, query, url, start, max_results, sort_by, sort_order,
               total_results, items_per_page, start_index, result_count, raw_sha256, raw_xml
             )
             VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            RETURNING search_id;
             """,
             (
                 now_iso(),
@@ -668,10 +668,10 @@ def cmd_search(args: argparse.Namespace) -> int:
                 sha256_bytes(body),
                 body.decode("utf-8", errors="replace"),
             ),
-        ).fetchone()
-        if search_row is None:
+        )
+        if cursor.lastrowid is None:
             raise RuntimeError("search insert failed")
-        search_id = int(search_row["search_id"])
+        search_id = int(cursor.lastrowid)
 
         for pos, entry in enumerate(entries):
             work_id = upsert_work(conn, entry)

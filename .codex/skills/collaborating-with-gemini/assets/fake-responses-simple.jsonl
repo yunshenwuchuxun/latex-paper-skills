@@ -1,0 +1,12 @@
+{"method":"generateContent","response":{"candidates":[{"content":{"parts":[{"text":"{\"reasoning\":\"test\",\"model_choice\":\"flash\"}"}],"role":"model"}}]}}
+{"method":"generateContentStream","response":[{"candidates":[{"content":{"parts":[{"text":"OK"}],"role":"model"}}]},{"candidates":[{"content":{"parts":[{"text":"\n"}],"role":"model"}}]}]}
+{"method":"generateContentStream","response":[{"candidates":[{"content":{"parts":[{"text":"OK"}],"role":"model"}}]},{"candidates":[{"content":{"parts":[{"text":"\n"}],"role":"model"}}]}]}
+{"method":"generateContentStream","response":[{"candidates":[{"content":{"parts":[{"text":"OK"}],"role":"model"}}]},{"candidates":[{"content":{"parts":[{"text":"\n"}],"role":"model"}}]}]}
+{"method":"generateContentStream","response":[{"candidates":[{"content":{"parts":[{"text":"OK"}],"role":"model"}}]},{"candidates":[{"content":{"parts":[{"text":"\n"}],"role":"model"}}]}]}
+{"method":"generateContentStream","response":[{"candidates":[{"content":{"parts":[{"text":"OK"}],"role":"model"}}]},{"candidates":[{"content":{"parts":[{"text":"\n"}],"role":"model"}}]}]}
+{"method":"generateContentStream","response":[{"candidates":[{"content":{"parts":[{"text":"OK"}],"role":"model"}}]},{"candidates":[{"content":{"parts":[{"text":"\n"}],"role":"model"}}]}]}
+{"method":"generateContentStream","response":[{"candidates":[{"content":{"parts":[{"text":"OK"}],"role":"model"}}]},{"candidates":[{"content":{"parts":[{"text":"\n"}],"role":"model"}}]}]}
+{"method":"generateContentStream","response":[{"candidates":[{"content":{"parts":[{"text":"OK"}],"role":"model"}}]},{"candidates":[{"content":{"parts":[{"text":"\n"}],"role":"model"}}]}]}
+{"method":"generateContentStream","response":[{"candidates":[{"content":{"parts":[{"text":"OK"}],"role":"model"}}]},{"candidates":[{"content":{"parts":[{"text":"\n"}],"role":"model"}}]}]}
+{"method":"generateContentStream","response":[{"candidates":[{"content":{"parts":[{"text":"OK"}],"role":"model"}}]},{"candidates":[{"content":{"parts":[{"text":"\n"}],"role":"model"}}]}]}
+{"method":"countTokens","response":{"totalTokens":1}}

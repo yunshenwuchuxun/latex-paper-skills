@@ -1,0 +1,5 @@
+component_id,name,role,input_format,output_format,is_novel,replaceable_by,ablation_priority,notes
+COMP-1,Input Encoder,Encode raw input into feature representation,raw input tensor,feature embedding,no,standard encoder (e.g. ResNet / BERT),low,Shared with baselines
+COMP-2,Core Innovation Module,Main novel contribution,feature embedding,refined representation,yes,identity / average pooling / simpler variant,high,Must ablate to validate primary claim
+COMP-3,Selection / Fusion Layer,Combine or select among representations,multiple embeddings,fused output,yes,simple concatenation / mean pooling,high,Secondary innovation; test independently
+COMP-4,Task Head,Map to final prediction,fused output,task output (labels / scores),no,linear head / MLP,low,Standard component

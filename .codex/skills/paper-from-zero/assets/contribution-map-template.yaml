@@ -1,0 +1,19 @@
+primary_claim:
+  statement: ""
+  novelty_type: ""  # e.g., new-method, new-benchmark, new-taxonomy, new-synthesis
+  gap_evidence: ""  # what gap in existing work does this fill?
+
+secondary_claims:
+  - statement: ""
+    supports_primary: true
+
+non_claims:
+  - ""  # explicitly out-of-scope items
+
+risks:
+  - description: ""
+    mitigation: ""
+
+reviewer_objections:
+  - objection: ""
+    preemptive_response: ""

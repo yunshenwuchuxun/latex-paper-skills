@@ -1,0 +1,133 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+% Citation management
+\usepackage{cite}
+
+% Text and list formatting
+\usepackage{enumitem}
+\usepackage{amsmath,amssymb,amsfonts}
+
+% Algorithms (optional but common in empirical papers)
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
+% Graphics and visual elements
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{url}
+
+% Figure and table enhancements
+\usepackage{booktabs}
+\usepackage{threeparttable}
+
+% Diagrams (optional)
+\usepackage{tikz}
+\usetikzlibrary{arrows,positioning,fit,calc}
+
+\begin{document}
+
+\title{[Empirical Paper Title]}
+
+\author{%
+\IEEEauthorblockN{[Author Name(s)]}
+\IEEEauthorblockA{[Affiliation(s)] \\
+Correspondence: [email@example.com]}
+}
+
+\maketitle
+
+\begin{IEEEkeywords}
+[keyword 1], [keyword 2], [keyword 3], [keyword 4]
+\end{IEEEkeywords}
+
+\begin{abstract}
+[Abstract placeholder. State the problem, the core idea, the experimental setting,
+the key outcome only if verified, and the main implication. Avoid citations here.]
+\end{abstract}
+
+\section{Introduction}
+[State the problem, why existing work is insufficient, the main contribution, and
+the paper roadmap. Keep every non-trivial claim citation-backed.]
+
+\subsection{Contributions (outline)}
+\begin{itemize}[leftmargin=*]
+\item [Contribution 1]: TBD (map to claim IDs in `brief/contribution-map.yaml` if available).
+\item [Contribution 2]: TBD.
+\item [Contribution 3]: TBD.
+\end{itemize}
+
+\section{Related Work}
+[Summarize the closest prior methods/settings and clearly distinguish this paper's
+claim from them.]
+
+\section{Method}
+[Describe the proposed method, formulation, architecture/training choices, and
+the rationale behind each design decision.]
+
+\subsection{Problem Setup}
+[Inputs, outputs, retrieval setting, and assumptions.]
+
+\subsection{Approach Overview}
+[High-level pipeline diagram placeholder.]
+
+\begin{figure}[t]
+\centering
+\fbox{\parbox{0.95\columnwidth}{\vspace{18mm}\centering Pipeline diagram (placeholder)\vspace{18mm}}}
+\caption{System overview (placeholder).}
+\label{fig:pipeline}
+\end{figure}
+
+\section{Experimental Setup}
+[Define datasets, baselines, metrics, hardware/runtime if relevant, and the exact
+evaluation protocol.]
+
+\subsection{Datasets}
+[List datasets and splits (planned/verified).]
+
+\subsection{Baselines}
+[List baselines and versions.]
+
+\subsection{Metrics}
+[Define primary and secondary metrics.]
+
+\section{Results}
+[Main results, ablations, and analysis go here. Use explicit placeholder text
+instead of invented numbers when results are not yet verified.]
+
+\subsection{Main Results}
+[Verified or placeholder-safe comparison to baselines.]
+
+\begin{table}[t]
+\centering
+\caption{Main results (placeholder). Use ``--'' for unverified values.}
+\label{tab:main_results}
+\begin{tabular}{lccc}
+\toprule
+Method & Metric 1 & Metric 2 & Cost \\
+\midrule
+Baseline A & -- & -- & -- \\
+Baseline B & -- & -- & -- \\
+Ours & -- & -- & -- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Ablation Studies}
+[What is removed/changed and why it matters.]
+
+\subsection{Error Analysis / Robustness}
+[Failure cases, robustness checks, or uncertainty analysis.]
+
+\section{Limitations}
+[Explicit limitations, open risks, and evidence not yet collected.]
+
+\section{Conclusion}
+[Summarize only claims that are already supported by the draft's evidence state.]
+
+\label{ReferencesStart}
+\bibliographystyle{ieeetr}
+\bibliography{ref}
+
+\end{document}

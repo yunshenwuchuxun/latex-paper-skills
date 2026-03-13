@@ -17,6 +17,65 @@ def run(cmd: list[str], cwd: Path) -> int:
     return result.returncode
 
 
+def parse_log_warnings(log_path: Path) -> dict[str, list[str]]:
+    """Parse main.log for LaTeX warnings, return categorized lists."""
+    warnings: dict[str, list[str]] = {
+        "overfull_hbox": [],
+        "underfull_hbox": [],
+        "undefined_citations": [],
+        "undefined_references": [],
+        "multiply_defined": [],
+        "missing_files": [],
+    }
+    if not log_path.exists():
+        return warnings
+    text = log_path.read_text(encoding="utf-8", errors="replace")
+    for line in text.splitlines():
+        if re.search(r"Overfull \\hbox .+ in paragraph at lines? (\d+)", line):
+            warnings["overfull_hbox"].append(line.strip())
+        elif re.search(r"Underfull \\hbox .+ in paragraph at lines? (\d+)", line):
+            warnings["underfull_hbox"].append(line.strip())
+        elif re.search(r"Citation [`']([^']+)['\"] on page (\d+) undefined", line) or \
+             re.search(r"LaTeX Warning: Citation [`']([^']+)['\"] on page", line):
+            warnings["undefined_citations"].append(line.strip())
+        elif re.search(r"Reference [`']([^']+)['\"] on page (\d+) undefined", line):
+            warnings["undefined_references"].append(line.strip())
+        elif re.search(r"Label [`']([^']+)['\"] multiply defined", line):
+            warnings["multiply_defined"].append(line.strip())
+        elif re.search(r"File [`']([^']+)['\"] not found", line):
+            warnings["missing_files"].append(line.strip())
+    return warnings
+
+
+def report_warnings(warnings: dict[str, list[str]]) -> int:
+    """Print warning summary, return total critical warning count."""
+    critical_categories = [
+        "overfull_hbox",
+        "undefined_citations",
+        "undefined_references",
+        "multiply_defined",
+        "missing_files",
+    ]
+    critical = 0
+    for category, items in warnings.items():
+        if not items:
+            continue
+        label = category.replace("_", " ").title()
+        severity = "CRITICAL" if category in critical_categories else "INFO"
+        print(f"\n[{severity}] {label}: {len(items)}")
+        for item in items[:20]:
+            print(f"  - {item}")
+        if len(items) > 20:
+            print(f"  ... and {len(items) - 20} more")
+        if category in critical_categories:
+            critical += len(items)
+    if critical == 0:
+        print("\nNo critical LaTeX warnings found.")
+    else:
+        print(f"\nTotal critical warnings: {critical}")
+    return critical
+
+
 def parse_total_pages(log_path: Path) -> int | None:
     if not log_path.exists():
         return None
@@ -128,6 +187,16 @@ def main() -> int:
         default="ReferencesStart",
         help="Label name recorded at bibliography start (default: ReferencesStart).",
     )
+    parser.add_argument(
+        "--check-warnings",
+        action="store_true",
+        help="Parse main.log for Overfull/Undefined/Missing warnings after compilation.",
+    )
+    parser.add_argument(
+        "--fail-on-warnings",
+        action="store_true",
+        help="Return exit code 2 when critical LaTeX warnings are found.",
+    )
     args = parser.parse_args()
 
     project_dir = Path(args.project_dir).resolve()
@@ -143,6 +212,8 @@ def main() -> int:
         return 1
 
     latexmk = latex_info.get("latexmk")
+    check = args.check_warnings or args.fail_on_warnings
+
     if latexmk:
         cmd = [
             latexmk,
@@ -154,6 +225,11 @@ def main() -> int:
         code = run(cmd, project_dir)
         if code == 0 and args.report_page_counts:
             report_page_counts(project_dir, args.references_start_label)
+        if code == 0 and check:
+            log_warnings = parse_log_warnings(project_dir / "main.log")
+            critical_count = report_warnings(log_warnings)
+            if args.fail_on_warnings and critical_count > 0:
+                return 2
         return code
 
     # Fallback: pdflatex + bibtex
@@ -171,6 +247,12 @@ def main() -> int:
 
     if args.report_page_counts:
         report_page_counts(project_dir, args.references_start_label)
+
+    if check:
+        log_warnings = parse_log_warnings(project_dir / "main.log")
+        critical_count = report_warnings(log_warnings)
+        if args.fail_on_warnings and critical_count > 0:
+            return 2
 
     return 0
 

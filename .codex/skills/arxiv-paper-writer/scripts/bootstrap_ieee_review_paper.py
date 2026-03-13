@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
-"""Bootstrap an IEEE review paper project (scaffold + plan/issues).
-
-This script exists to make the recommended workflow hard to forget:
-1) Kickoff: scaffold + draft plan (for user review)
-2) Continue: create issues CSV (execution contract) after user approval
-"""
+"""Bootstrap an IEEE review paper project (scaffold + plan/issues)."""
 
 from __future__ import annotations
 
@@ -14,7 +9,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from paper_utils import get_template_dir, now_timestamp, slugify, validate_slug, validate_timestamp
+from paper_utils import ensure_paper_config, get_template_dir, now_timestamp, slugify, validate_slug, validate_timestamp
 
 
 def run(cmd: list[str]) -> int:
@@ -22,7 +17,7 @@ def run(cmd: list[str]) -> int:
     return proc.returncode
 
 
-def scaffold_project(topic: str, folder_name: str, out_dir: Path) -> Path:
+def scaffold_project(folder_name: str, out_dir: Path) -> Path:
     dest_dir = out_dir / folder_name
     if dest_dir.exists():
         raise SystemExit(f"Destination already exists: {dest_dir}")
@@ -67,34 +62,34 @@ def scaffold_project(topic: str, folder_name: str, out_dir: Path) -> Path:
 def infer_latest_plan_timestamp_and_slug(plan_dir: Path) -> tuple[str, str] | None:
     if not plan_dir.exists():
         return None
-    candidates = sorted(p for p in plan_dir.glob("*.md") if p.is_file())
+    candidates = sorted(path for path in plan_dir.glob("*.md") if path.is_file())
     if not candidates:
         return None
-    latest = candidates[-1].name  # lexicographic works for YYYY-MM-DD_HH-mm-ss prefix
+    latest = candidates[-1].name
     if not latest.endswith(".md"):
         return None
     stem = latest[:-3]
     if len(stem) < 21 or stem[19] != "-":
         return None
-    ts = stem[:19]
+    timestamp = stem[:19]
     slug = stem[20:]
     try:
-        validate_timestamp(ts)
+        validate_timestamp(timestamp)
         validate_slug(slug)
     except ValueError:
         return None
-    return ts, slug
+    return timestamp, slug
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Bootstrap an IEEE review paper project (kickoff plan first, then issues)."
+        description="Bootstrap an IEEE review paper project (outline/plan first, then issues)."
     )
     parser.add_argument(
         "--stage",
         default="kickoff",
-        choices=["kickoff", "issues"],
-        help="kickoff=scaffold+plan; issues=create issues CSV (default: kickoff).",
+        choices=["kickoff", "issues", "outline"],
+        help="kickoff=scaffold+plan; outline=scaffold+outline-only plan; issues=create issues CSV.",
     )
     parser.add_argument("--topic", required=True, help="Paper topic description.")
     parser.add_argument("--name", help="Folder name override (default: slugified topic).")
@@ -107,7 +102,7 @@ def main() -> int:
     )
     parser.add_argument(
         "--timestamp",
-        help="Timestamp override (YYYY-MM-DD_HH-mm-ss). Optional for kickoff/all; used for issues stage.",
+        help="Timestamp override (YYYY-MM-DD_HH-mm-ss). Optional for kickoff/outline; used for issues stage.",
     )
     parser.add_argument(
         "--slug",
@@ -122,6 +117,25 @@ def main() -> int:
         "--with-literature-notes",
         action="store_true",
         help="Create notes/literature-notes.md to track paper summaries per citation key.",
+    )
+    parser.add_argument("--target-venue", default="", help="Optional target venue or journal.")
+    parser.add_argument(
+        "--preferred-venue",
+        action="append",
+        default=[],
+        help="Repeatable preferred venue/journal hint.",
+    )
+    parser.add_argument(
+        "--style-mode",
+        default="neutral",
+        choices=["neutral", "target_venue"],
+        help="Style profile mode to seed in paper.config.yaml.",
+    )
+    parser.add_argument(
+        "--style-anchor-paper",
+        action="append",
+        default=[],
+        help="Repeatable style anchor paper identifier/URL.",
     )
     args = parser.parse_args()
 
@@ -166,16 +180,27 @@ def main() -> int:
     scripts_dir = Path(__file__).resolve().parent
     plan_script = scripts_dir / "create_paper_plan.py"
 
-    if args.stage == "kickoff":
-        scaffold_project(topic, folder_name, out_dir)
+    if args.stage in {"kickoff", "outline"}:
+        scaffold_project(folder_name, out_dir)
+        workflow_mode = "outline-only" if args.stage == "outline" else "standard"
+        ensure_paper_config(
+            project_dir=project_dir,
+            topic=topic,
+            workflow_mode=workflow_mode,
+            target_venue=args.target_venue,
+            preferred_venues=args.preferred_venue,
+            style_mode=args.style_mode,
+            style_anchor_papers=args.style_anchor_paper,
+        )
 
+        stage_name = "outline" if args.stage == "outline" else "plan"
         plan_cmd = [
             sys.executable,
             str(plan_script),
             "--topic",
             topic,
             "--stage",
-            "plan",
+            stage_name,
             "--complexity",
             args.complexity,
             "--timestamp",
@@ -184,7 +209,15 @@ def main() -> int:
             slug,
             "--output-dir",
             str(project_dir),
+            "--target-venue",
+            args.target_venue,
+            "--style-mode",
+            args.style_mode,
         ]
+        for venue in args.preferred_venue:
+            plan_cmd.extend(["--preferred-venue", venue])
+        for anchor in args.style_anchor_paper:
+            plan_cmd.extend(["--style-anchor-paper", anchor])
         if args.check_latex:
             plan_cmd.append("--check-latex")
         code = run(plan_cmd)
@@ -206,6 +239,16 @@ def main() -> int:
                 return 1
             timestamp, slug = inferred
 
+        ensure_paper_config(
+            project_dir=project_dir,
+            topic=topic,
+            workflow_mode="standard",
+            target_venue=args.target_venue,
+            preferred_venues=args.preferred_venue,
+            style_mode=args.style_mode,
+            style_anchor_papers=args.style_anchor_paper,
+        )
+
         issues_cmd = [
             sys.executable,
             str(plan_script),
@@ -221,7 +264,15 @@ def main() -> int:
             slug,
             "--output-dir",
             str(project_dir),
+            "--target-venue",
+            args.target_venue,
+            "--style-mode",
+            args.style_mode,
         ]
+        for venue in args.preferred_venue:
+            issues_cmd.extend(["--preferred-venue", venue])
+        for anchor in args.style_anchor_paper:
+            issues_cmd.extend(["--style-anchor-paper", anchor])
         if args.check_latex:
             issues_cmd.append("--check-latex")
         if args.with_literature_notes:
