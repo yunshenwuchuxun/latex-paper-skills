@@ -1,4 +1,4 @@
-# latex-arxiv-SKILL
+# latex-paper-skills
 
 New: [Beginner Workflow Guide (Chinese)](BEGINNER_WORKFLOW.zh-CN.md)
 
@@ -196,7 +196,7 @@ If you only want the fastest tour:
 ## Project Structure
 
 ```
-latex-arxiv-SKILL/
+latex-paper-skills/
 ├── .codex/skills/
 │   ├── paper-from-zero/              # Router: topic → writer skill
 │   ├── arxiv-paper-writer/           # Review paper executor + shared scripts

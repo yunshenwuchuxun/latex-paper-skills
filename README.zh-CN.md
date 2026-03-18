@@ -1,4 +1,4 @@
-# latex-arxiv-SKILL
+# latex-paper-skills
 
 新手先看：[AI 写论文工作流入门](BEGINNER_WORKFLOW.zh-CN.md)
 
@@ -195,7 +195,7 @@ Assume I will run the jobs myself and then use results-backfill after real CSVs 
 ## 项目结构
 
 ```
-latex-arxiv-SKILL/
+latex-paper-skills/
 ├── .codex/skills/
 │   ├── paper-from-zero/              # 路由层：选题 → 写作技能
 │   ├── arxiv-paper-writer/           # 综述论文执行器 + 共享脚本

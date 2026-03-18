@@ -1,4 +1,4 @@
-# 项目架构分析：`latex-arxiv-SKILL`
+# 项目架构分析：`latex-paper-skills`
 
 > 目标：把本仓库作为一个“可移植的 Skill Bundle”来理解——它为 Codex CLI / Claude Code 提供一套**端到端、以 issues 为执行合同**的 arXiv（IEEEtran 双栏）综述论文写作工作流，并附带可复用的脚本、模板与示例产物。
 
@@ -15,7 +15,7 @@
 ### 1.2 顶层目录（模块边界）
 
 ```text
-latex-arxiv-SKILL/
+latex-paper-skills/
 ├─ .codex/
 │  └─ skills/
 │     ├─ paper-from-zero/
