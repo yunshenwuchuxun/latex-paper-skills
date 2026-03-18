@@ -1,0 +1,20 @@
+\begin{tikzpicture}[
+  font=\small,
+  block/.style={draw, rounded corners=2pt, align=center, minimum width=0.44\columnwidth, minimum height=9mm, line width=0.7pt},
+  arrow/.style={->,>=latex, line width=0.9pt},
+]
+
+\node[block, fill=gray!6, draw=black!60] (obs) {COMP-1: Observations / Snapshot\\(inflow, storage, releases)};
+\node[block, fill=green!10, draw=green!50!black, below=6mm of obs] (cal) {COMP-2: Rolling Calibration\\(online parameter update)};
+\node[block, fill=blue!8, draw=blue!55!black, below=6mm of cal] (fcst) {COMP-3: Probabilistic Forecast\\(multi-step uncertainty)};
+\node[block, fill=orange!12, draw=orange!70!black, below=6mm of fcst] (mpc) {COMP-5: Dispatch Optimization\\(scenario MPC)};
+\node[block, fill=purple!10, draw=purple!60!black, below=6mm of mpc] (impl) {Execute One Cycle\\and record outcomes};
+
+\draw[arrow] (obs) -- (cal);
+\draw[arrow] (cal) -- (fcst);
+\draw[arrow] (fcst) -- (mpc);
+\draw[arrow] (mpc) -- (impl);
+
+\draw[arrow] (impl.west) -- ++(-9mm,0) |- node[left,align=center,font=\small]{COMP-6:\\feedback inflation\\+ next-cycle init} (obs.west);
+
+\end{tikzpicture}

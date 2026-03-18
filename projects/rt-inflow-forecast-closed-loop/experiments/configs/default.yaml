@@ -1,0 +1,81 @@
+﻿# Default experiment configuration (template).
+project:
+  name: "rt-inflow-forecast-closed-loop"
+  seed: 42
+  device: "cpu"  # use cpu for deterministic, reproducible runs
+  num_runs: 1
+
+paths:
+  # Where to read the experiment matrix from (relative to experiments/).
+  experiment_matrix_csv: "../paper/notes/design/experiment-matrix.csv"
+  # Where to write results (relative to experiments/).
+  results_dir: "../paper/results"
+
+data:
+  resopsus:
+    # Root directory containing files like ResOpsUS_<DAM_ID>.csv
+    time_series_all_dir: "data/raw/ResOpsUS2/ResOpsUS/time_series_all"
+    reservoir_attributes_csv: "data/raw/ResOpsUS2/ResOpsUS/attributes/reservoir_attributes.csv"
+    dam_ids:
+      - 597  # Glen Canyon (AZ)
+      - 451  # Flaming Gorge (UT)
+      - 601  # Navajo (NM)
+    start_date: "1980-01-01"
+    end_date: "2020-12-31"
+    train_end: "2010-12-31"
+    tune_end: "2014-12-31"
+    test_end: "2020-12-31"
+
+model:
+  # Forecast model hyperparameters used by ML baselines.
+  lstm:
+    lookback_days: 30
+    horizon_days: 7
+    hidden_dim: 64
+    num_layers: 1
+    dropout: 0.0
+
+training:
+  epochs: 8
+  batch_size: 128
+  lr: 0.001
+
+evaluation:
+  horizon_days: 7
+  scenario_count: 20
+  random_seed: 42
+  metrics:
+    forecast:
+      - "rmse"
+      - "mae"
+      - "nse"
+      - "crps"
+      - "coverage80"
+    ops:
+      - "violation_rate"
+      - "objective"
+      - "reliability"
+      - "vulnerability"
+  rolling_calibration:
+    ar_order: 3
+    forgetting_factor: 0.999
+    init_ridge: 1000.0
+    sigma_ewma_alpha: 0.98
+  dispatch:
+    # Storage update: storage is MCM; inflow/outflow are m3/s.
+    m3s_to_mcm_per_day: 0.0864
+    horizon_days: 7
+    weights:
+      w_storage: 1.0
+      w_release: 0.02
+      w_delta_release: 0.2
+      w_violation: 500.0
+    bounds:
+      storage_quantiles: [0.05, 0.95]
+      release_quantiles: [0.05, 0.95]
+  feedback:
+    # Adaptive uncertainty inflation (COMP-6): increases scenario spread when short-term errors spike.
+    inflation_max: 3.0
+    inflation_ewma_alpha: 0.95
+
+

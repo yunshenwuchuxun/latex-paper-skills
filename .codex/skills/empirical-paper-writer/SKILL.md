@@ -38,14 +38,16 @@ experiment-driven writing.
 - Optional user-provided innovation, baselines, datasets, or results
 
 ## Outputs
-- `main.tex`
+- `main.tex` (placeholder-safe draft)
 - `ref.bib`
-- `paper.config.yaml`
+- `paper.config.yaml` (includes `runtime.*` for experiment execution)
 - `plan/<timestamp>-<slug>.md`
 - `issues/<timestamp>-<slug>.csv`
 - Optional `notes/literature-notes.md`
 - Recommended `notes/innovation/` (candidates + decision log + evidence links)
-- Figures/tables/result placeholders in the LaTeX draft
+- `notes/design/` CSV artifacts (`baselines.csv`, `method-components.csv`, `experiment-matrix.csv`)
+- Figures/tables/result placeholders in the LaTeX draft (hypothesis-safe)
+- Optional `experiments/` code scaffold (PyTorch skeleton; not executed by this skill)
 - `main.pdf` after compile/QA when LaTeX is available
 
 ## Non-Negotiable Rules
@@ -65,11 +67,12 @@ experiment-driven writing.
    - outline contract
 4. Scaffold the project:
    ```bash
-   python3 scripts/bootstrap_ieee_empirical_paper.py --stage kickoff --topic "<topic>"
+   python3 scripts/bootstrap_ieee_empirical_paper.py --stage kickoff --topic "<topic>" --layout project
    ```
+   `--layout project` creates `<project>/paper/` (LaTeX + issues) and `<project>/experiments/` (code scaffold).
    For a lighter entrypoint with an outline-only plan:
    ```bash
-   python3 scripts/bootstrap_ieee_empirical_paper.py --stage outline --topic "<topic>"
+   python3 scripts/bootstrap_ieee_empirical_paper.py --stage outline --topic "<topic>" --layout project
    ```
 5. Create a skeleton-only `main.tex` with headings, bullet placeholders, experiment slots, and seed citations.
 6. **STOP** until the user approves the plan.
@@ -137,12 +140,29 @@ before creating the issues CSV. This phase produces structured CSV artifacts.
 1. Check the kickoff gate in the plan.
 2. Create issues CSV:
    ```bash
-   python3 scripts/bootstrap_ieee_empirical_paper.py --stage issues --topic "<topic>" --with-literature-notes
+   python3 scripts/bootstrap_ieee_empirical_paper.py --stage issues --topic "<topic>" --with-literature-notes --layout project
    ```
 3. Validate:
    ```bash
    python3 scripts/validate_empirical_paper_issues.py <paper_dir>/issues/<timestamp>-<slug>.csv
    ```
+   For `--layout project`, `<paper_dir>` is `<project>/paper`.
+
+### Phase 1.5: Literature Enrichment Gate
+
+Before starting the writing loop, ensure citation coverage is adequate.
+
+1. **Count check**: total unique entries in `ref.bib`. If < 25, trigger enrichment.
+2. **Cluster search**: for each Related Work sub-area (from the RW taxonomy), search
+   for 3-5 additional relevant papers beyond the initial spine set.
+3. **Baseline citations**: every selected baseline in `baselines.csv` must have at
+   least one corresponding entry in `ref.bib`.
+4. **Method motivation**: for each novel component in `method-components.csv`,
+   find 1-2 papers that motivate the design choice (prior art or the gap it fills).
+5. **Verify** all new citations via the standard verification pipeline.
+6. **Gate**: do not start W1 until `ref.bib` has ≥ 25 verified entries. Target 30-40
+   for the finished paper (empirical papers need fewer than reviews, but 14 is
+   universally too low).
 
 ### Phase 2: Execution Loop
 For each issue:
@@ -152,15 +172,141 @@ For each issue:
    - `verified`: backed by real evidence
    - `placeholder`: reserved for future real evidence
    - `planned`: the experiment is designed but not yet filled in
-4. Never write deterministic superiority claims without verified evidence.
-5. Run citation audit / compile / QA before marking DONE.
+4. Prefer hypothesis-safe writing for any unverified outcome (e.g., `(hypothesis)` / `[Pending: ...]` tags).
+5. Never write deterministic superiority claims without verified evidence.
+6. Run citation audit / compile / QA before marking DONE.
+7. **Dependency enforcement**: Before marking any issue DONE, verify that ALL issues listed in its `Depends_On` column are already DONE or SKIP. If any dependency is still TODO or DOING, the current issue MUST NOT be marked DONE. This rule is non-negotiable.
 
 ### Phase 2.2: Issue Execution Helpers
 - Use `python3 ../arxiv-paper-writer/scripts/issue_workflow.py --project-dir <paper_dir> render-skeleton --issues <issues.csv> --issue-id <Wx>` to render a LaTeX section skeleton for a Writing issue.
 - Add `--apply-if-missing` only when the full section path is entirely absent from `main.tex`; nested insertion under an existing parent stays manual.
 - Before QA or after a batch of edits, run `python3 ../arxiv-paper-writer/scripts/issue_workflow.py --project-dir <paper_dir> audit --issues <issues.csv>` to check section-path consistency, citation counts, placeholders, and lightweight figure/page signals.
 
-### Phase 2.5: Rhythm Refinement
+### Phase 2.3: Experiment Execution Checkpoint
+After all experiment design issues (E0-E4) and experiment code issues (E5-E7) are DONE:
+
+1. **Check runability**: Verify that the experiment runner script exists and is syntactically valid.
+2. **STOP and instruct the user**:
+   - Tell the user to run experiments in their configured environment:
+     ```
+     conda activate <runtime.conda_env>
+     cd <project_dir>/experiments
+     python run_all.py --config configs/<config>.yaml
+     ```
+   - Tell the user to invoke `results-backfill` SKILL after experiments complete.
+3. **Do NOT attempt to run long experiments within the AI session.**
+4. Mark experiment execution issues (E8-E10) as TODO with note "awaiting user execution".
+
+### Phase 2.4: Structural Figure Generation
+
+After all writing issues (W1-W7) reach DONE, resolve structural diagrams.
+These are **non-result figures**—architecture, pipeline, formulation diagrams
+that depend on method design, not on experiment outcomes.
+
+**Step 1: Identify required figures**
+Scan `main.tex` for `\fbox{...placeholder...}`. Classify each:
+- **Structural** (derivable from method-components.csv / problem formulation):
+  generate now.
+- **Result-dependent** (needs experiment data): keep as placeholder until
+  Phase 2.5.
+
+**Step 2: Generate structural TikZ figures**
+For each structural placeholder:
+1. Read `notes/design/method-components.csv` to extract component names,
+   is_novel flags, and data-flow edges.
+2. Select a pattern from `references/figure-generation-guide.md`.
+3. Generate a `.tikz` file under `paper/figures/` and replace the `\fbox`
+   with `\input{figures/<name>.tikz}`.
+4. Standard figures for empirical papers (generate at least 2 of 3):
+   - **System overview / teaser** (`fig:teaser`): problem setting +
+     where the method fits. Place in Introduction.
+   - **Method architecture** (`fig:method`): pipeline with components,
+     novel parts highlighted. Place in Method.
+   - **Formulation diagram** (optional, `fig:formulation`): MDP / state
+     machine / optimization flow. Place in Problem Formulation or Method.
+
+**Step 3: Visual issues tracking**
+Use V-prefixed issues (V1, V2, ...) in the issues CSV for each figure.
+Mark DONE only when the TikZ compiles and is referenced in text.
+
+See `references/figure-generation-guide.md` for TikZ patterns and style rules.
+
+**Gate**: All structural `\fbox` placeholders must be resolved before
+Phase 2.5. Result-dependent `\fbox` pass through to Phase 2.5.
+
+### Phase 2.5: Claim Upgrade & Placeholder Resolution
+
+After experiment issues (E*) reach `verified` status, perform a systematic
+upgrade pass. This phase has four mandatory steps.
+
+**Step 1: Claim Analysis** (mandatory)
+
+For each contribution claim (C0, C1, C2, ...):
+1. Map the claim to its supporting experiments in `experiment-matrix.csv`.
+2. Check `result_status` for ALL supporting experiment rows.
+3. Apply the upgrade decision:
+
+| Evidence state | Action |
+|----------------|--------|
+| ALL experiments verified | Upgrade `(hypothesis)` → bounded factual claim with specific numbers |
+| SOME verified, SOME planned | Upgrade the verified part; note remaining gaps explicitly |
+| NONE verified | Keep as `(hypothesis)` |
+
+4. When upgrading, write with the verified numbers:
+   - BAD: "Our method improves the tradeoff (hypothesis)."
+   - GOOD: "Our method achieves 0.27% violation rate, a 58% reduction
+     vs. the nearest constrained baseline (0.65%), while maintaining
+     comparable cost (0.8% higher than MPC)."
+5. Update contribution list in Introduction to reflect upgrades.
+
+See `references/abstract-conclusion-guide.md` for the claim-upgrade
+decision tree and safe-language patterns.
+
+**Step 2: Result-dependent Figure Resolution** (mandatory)
+
+For each remaining `\fbox{...placeholder...}` in `main.tex`:
+1. Check whether the required data exists in `paper/results/`.
+2. If data exists: generate figure (TikZ plot, table, or pgfplots).
+3. If data does not exist: replace `\fbox` with an explicit text marker
+   `[Figure pending: <experiment_id> not yet verified]`.
+
+**Step 3: Section Back-fill** (mandatory)
+
+For each `experiment-matrix.csv` row with `result_status=verified`:
+1. Check whether the corresponding section in `main.tex` contains actual
+   results or is still a skeleton.
+2. If skeleton: fill with verified results, tables, and analysis text.
+3. For sections where only SOME experiments are verified: write verified
+   portions and mark remaining as `[Results pending: <experiment_id>]`.
+
+**Step 4: Abstract & Conclusion Completion** (mandatory)
+
+1. **Abstract** (see `references/abstract-conclusion-guide.md`):
+   - Sentence 1: Problem statement
+   - Sentence 2-3: Method core idea
+   - Sentence 3-4: Experimental setting
+   - Sentence 4-5: Key verified result (specific numbers)
+   - Sentence 5: Implication
+   - Constraint: ≤250 words, no citations, no unexpanded acronyms.
+   - If main results are verified, the abstract MUST contain specific
+     numbers. Do not write a vague abstract when data exists.
+
+2. **Conclusion** (see `references/abstract-conclusion-guide.md`):
+   - Paragraph 1: Problem restatement + method summary (2-3 sentences)
+   - Paragraph 2: Key verified findings with specific numbers from
+     results tables/figures. One sentence per major finding.
+   - Paragraph 3: Limitations (brief) + concrete future work items
+     (tied to planned/placeholder experiments)
+   - If a claim is still `(hypothesis)`, state it as future work,
+     not as a finding.
+
+**Gate**: Do not proceed to Rhythm Refinement (Phase 2.7) until:
+- All `\fbox` placeholders are resolved or explicitly marked pending.
+- No `(hypothesis)` tags remain for claims with verified evidence.
+- Abstract is substantive (not a stub).
+- Conclusion contains specific numbers from verified results.
+
+### Phase 2.7: Rhythm Refinement
 After all writing issues are `DONE`, refine prose section-by-section using the `latex-rhythm-refiner` skill. This step varies sentence/paragraph lengths and removes filler phrases while preserving all citations.
 
 ### Phase 3: QA Gate
@@ -176,6 +322,14 @@ After all writing issues are `DONE`, refine prose section-by-section using the `
 3. Compile; ensure no `Overfull \hbox` warnings in `main.log`.
 4. Deliver `main.tex`, `ref.bib`, figures, and `main.pdf`.
 
+### Runtime Environment
+Before running any experiment or utility script:
+1. Read `paper.config.yaml` → `runtime.conda_env` or `runtime.python`.
+2. If `conda_env` is set, activate it: `conda activate <env_name>`.
+3. If `python` is set, use that interpreter directly.
+4. If neither is set, ask the user which conda environment to use.
+5. All subprocess calls should use the configured interpreter, not the system default.
+
 ---
 
 ## Success Criteria
@@ -187,8 +341,13 @@ After all writing issues are `DONE`, refine prose section-by-section using the `
 - 30-60 total citations (fewer than review; experiment evidence replaces some citations)
 - 100% citation verification rate
 - 5+ visualization types (including result tables/figures)
+- ≥2 structural TikZ figures (system overview + method architecture)
+- 0 remaining `\fbox` placeholders in `main.tex`
+- Abstract is substantive (≤250 words, contains verified key result)
+- Conclusion contains specific numbers from verified experiments
 - All issues `DONE` or `SKIP`
 - All result statements either `verified` or explicitly `placeholder`
+- No `(hypothesis)` tags for claims with verified evidence
 
 ---
 
@@ -245,10 +404,14 @@ Schema validated by `scripts/validate_empirical_paper_issues.py`.
 
 ## References to Read
 - `references/experiment-design.md` (baseline selection, experiment matrix patterns, ablation design, statistical rigor)
+- `references/figure-generation-guide.md` (TikZ patterns for structural diagrams)
+- `references/abstract-conclusion-guide.md` (abstract template, conclusion template, claim upgrade decision tree)
 - `references/research-workflow.md`
 - `references/experiment-evidence.md`
 - `references/results-writing.md`
 - `references/reviewer-loop.md`
+- `references/reproducibility-checklist.md`
+- `references/fork-extend-workflow.md`
 - Also reuse common references from `../arxiv-paper-writer/references/`:
   - `bibtex-guide.md`
   - `citation-workflow.md`

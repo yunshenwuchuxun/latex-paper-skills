@@ -100,6 +100,34 @@ description: >
 4. If literature notes are enabled, keep short summaries and (optional) abstract snippets to avoid re-search.
 5. The plan may evolve; add/split/insert issues as needed, re閳ユ唺alidate after edits, and keep going until all issues (including inserted ones) are `DONE` or `SKIP` (when feasible, in the same run).
 
+### Phase 1.5: Literature Enrichment Gate
+
+Before starting the writing loop, ensure citation coverage is adequate for a
+review/survey paper. Review papers require substantially more references than
+empirical papers.
+
+1. **Gather candidates**: collect papers from initial discovery, spine set,
+   and sub-area searches. Aim for 50-80 candidate entries in `ref.bib`.
+2. **Sub-area coverage**: for each Related Work subsection (from the outline
+   contract or framework skeleton), verify ≥ 5 cited papers. If any sub-area
+   has fewer, search for additional papers in that cluster.
+3. **Seminal work**: for each major research thread in the taxonomy, verify
+   at least 1 foundational/seminal paper (pre-2020) is cited alongside
+   recent work. Review papers that cite only recent work look shallow.
+4. **Key method citations**: every method, algorithm, or benchmark mentioned
+   by name in the outline must have a corresponding `ref.bib` entry.
+5. **Quality screening**: verify and filter all citations via the standard
+   verification pipeline (`arxiv_registry.py` → `source_ranker.py` →
+   `citation_policy.py`). Remove entries that fail verification, are
+   duplicates, or are Tier C (low-quality) sources unless no better
+   alternative exists for that claim.
+6. **Gate (post-screening)**: do not start W1 until `ref.bib` has
+   **≥ 30 verified entries after screening**. Target 60-80 for the
+   finished paper (additional citations are added during Phase 2 writing).
+   Every Related Work sub-area must still have ≥ 5 verified citations
+   after screening. If the gate fails, return to enrichment (repeat
+   steps 2-5) before proceeding.
+
 ### Phase 2: Per-Issue Writing Loop
 For each writing issue in the CSV:
 - If an issue balloons (new figure, new subsection, new benchmark set, or a large QA fix), split/insert new issue row(s) (e.g., `W6a`, `Q5`) before proceeding; re-run `python3 scripts/validate_paper_issues.py <issues.csv>`; keep going until all issues are `DONE`/`SKIP`.
@@ -165,6 +193,8 @@ python3 scripts/create_paper_plan.py --topic "<topic>" --stage issues --timestam
 **Quality Metrics**:
 - 6-10 pages of main text (references excluded)
 - 60-80 total citations (8+ per section)
+- Every Related Work sub-area has ≥ 5 citations
+- At least 1 seminal/foundational citation per major research thread
 - 100% citation verification rate
 - 70%+ citations from last 3 years
 - 5+ visualization types

@@ -8,13 +8,14 @@ import re
 import sys
 from pathlib import Path
 
-from paper_utils import (
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "_shared"))
+
+from paper_utils import (  # noqa: E402
     build_issues_filename,
     build_plan_filename,
     check_latex_available,
     ensure_paper_config,
     format_yaml_value,
-    get_assets_dir,
     load_paper_config,
     now_iso,
     now_timestamp,
@@ -23,10 +24,12 @@ from paper_utils import (
     validate_timestamp,
 )
 
+_SKILL_ASSETS = Path(__file__).resolve().parents[1] / "assets"
+
 
 def read_template(template_name: str) -> str:
     """Read a template file from assets."""
-    template_path = get_assets_dir() / template_name
+    template_path = _SKILL_ASSETS / template_name
     if not template_path.exists():
         raise FileNotFoundError(f"Template not found: {template_path}")
     return template_path.read_text(encoding="utf-8")

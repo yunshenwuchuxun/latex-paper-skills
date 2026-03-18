@@ -10,10 +10,12 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from arxiv_registry import connect, ensure_bibtex, ensure_citation_key, ensure_initialized, ensure_work, init_schema, rewrite_bibtex_key
-from citation_policy import normalize_section_lookup_map
-from compile_paper import parse_label_page, parse_total_pages
-from paper_utils import (
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "_shared"))
+
+from arxiv_registry import connect, ensure_bibtex, ensure_citation_key, ensure_initialized, ensure_work, init_schema, rewrite_bibtex_key  # noqa: E402
+from citation_policy import normalize_section_lookup_map  # noqa: E402
+from compile_paper import parse_label_page, parse_total_pages  # noqa: E402
+from paper_utils import (  # noqa: E402
     build_default_style_profile,
     extract_section_events,
     get_style_profile_path,
@@ -22,7 +24,7 @@ from paper_utils import (
     parse_bibtex_entries,
     read_simple_yaml_file,
 )
-from style_profile import count_figures_tables
+from style_profile import count_figures_tables  # noqa: E402
 
 
 CURRENT_COLUMNS = [
@@ -179,6 +181,22 @@ def build_section_ranges(content: str) -> dict[str, dict[str, Any]]:
             "end": end,
             "content": content[int(event["start"]):end],
         }
+
+    # IEEE-style templates render the abstract as an environment rather than a section.
+    # Treat it as a pseudo-section so Writing issues can target it via Section_Path=Abstract.
+    abstract_match = re.search(r"\\begin\{abstract\}.*?\\end\{abstract\}", content, flags=re.DOTALL)
+    if abstract_match:
+        ranges.setdefault(
+            "abstract",
+            {
+                "level": "section",
+                "title": "Abstract",
+                "normalized_path": "abstract",
+                "start": abstract_match.start(),
+                "end": abstract_match.end(),
+                "content": content[abstract_match.start():abstract_match.end()],
+            },
+        )
     return ranges
 
 

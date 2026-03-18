@@ -1,0 +1,14 @@
+{\setlength{\tabcolsep}{2pt}\scriptsize
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{p{0.34\columnwidth}cccc}
+\toprule
+Method & RMSE & NSE & CRPS & Cov. \\
+\midrule
+Persistence & 54.44$\pm$55.82 & 0.836$\pm$0.044 & 34.87$\pm$40.41 & 0.940$\pm$0.036 \\
+Climatology & 102.81$\pm$110.70 & 0.473$\pm$0.088 & 92.66$\pm$109.10 & 0.979$\pm$0.013 \\
+AR(p) static & 53.33$\pm$55.90 & 0.848$\pm$0.039 & 31.11$\pm$35.21 & 0.937$\pm$0.026 \\
+ML-LSTM & 57.63$\pm$62.10 & 0.834$\pm$0.031 & 28.89$\pm$31.93 & 0.901$\pm$0.019 \\
+Rolling AR(p) (ours) & 53.40$\pm$55.45 & 0.845$\pm$0.044 & 26.03$\pm$27.79 & 0.915$\pm$0.020 \\
+\bottomrule
+\end{tabular}}
+}

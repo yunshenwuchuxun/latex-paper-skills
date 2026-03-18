@@ -21,6 +21,8 @@ REQUIRED_COLUMNS = [
     "Acceptance",
     "Status",
     "Verified_Citations",
+    "Depends_On",
+    "Must_Verify",
     "Notes",
 ]
 
@@ -173,6 +175,44 @@ def main() -> int:
                 )
         if re.search(r"<[^>]+>", row_data["Title"] + row_data["Description"] + row_data["Notes"]):
             errors.append(f"row {idx}: unresolved angle-bracket placeholder remains in row content")
+
+    # --- Dependency & Must_Verify consistency check ---
+    parsed_rows: list[tuple[int, dict[str, str]]] = []
+    for idx, row in enumerate(rows[1:], start=2):
+        if len(row) == len(REQUIRED_COLUMNS):
+            parsed_rows.append((idx, dict(zip(REQUIRED_COLUMNS, row))))
+
+    done_or_skip = {
+        data["ID"].strip()
+        for _, data in parsed_rows
+        if data["Status"].strip() in {"DONE", "SKIP"}
+    }
+    for idx, data in parsed_rows:
+        if data["Status"].strip() == "DONE":
+            deps_raw = data["Depends_On"].strip()
+            deps = [
+                d.strip()
+                for d in deps_raw.split(";")
+                if d.strip() and d.strip().upper() != "N/A"
+            ]
+            for dep in deps:
+                if dep not in done_or_skip:
+                    errors.append(
+                        f"row {idx}: issue '{data['ID'].strip()}' is DONE "
+                        f"but dependency '{dep}' is not DONE/SKIP"
+                    )
+            must_verify = data["Must_Verify"].strip().lower()
+            if must_verify == "yes":
+                verified = 0
+                try:
+                    verified = int(data["Verified_Citations"].strip())
+                except ValueError:
+                    pass
+                if verified <= 0:
+                    errors.append(
+                        f"row {idx}: issue '{data['ID'].strip()}' is DONE with "
+                        f"Must_Verify=yes but Verified_Citations is {verified}"
+                    )
 
     if errors:
         for message in errors:

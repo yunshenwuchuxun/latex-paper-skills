@@ -9,6 +9,7 @@ import argparse
 import json
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -126,6 +127,18 @@ def parse_json_output(lines: List[str]) -> Tuple[Optional[str], str, List[Dict[s
 
 
 def main() -> None:
+    # Windows consoles may run with legacy encodings (e.g., GBK) that cannot
+    # represent certain Unicode characters returned by Claude (e.g., "m³/s").
+    # Avoid crashing on stdout/stderr encoding errors in those environments.
+    try:
+        sys.stdout.reconfigure(errors="backslashreplace")
+    except Exception:
+        pass
+    try:
+        sys.stderr.reconfigure(errors="backslashreplace")
+    except Exception:
+        pass
+
     parser = argparse.ArgumentParser(description="Claude Code Bridge")
     parser.add_argument("--PROMPT", required=True, help="Instruction for the task to send to claude.")
     parser.add_argument("--cd", required=True, type=Path, help="Set the workspace root for claude before executing the task.")

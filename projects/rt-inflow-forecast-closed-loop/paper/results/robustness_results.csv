@@ -1,0 +1,28 @@
+stress,severity,method,violation_rate_mean,objective_mean
+inflow_scale,0.8,StaticCalib-OpenLoop-DetMPC,0.01429440389294404,7739049.581200067
+inflow_scale,0.8,RollingCalib-OpenLoop-DetMPC,0.01429440389294404,7740179.280511223
+inflow_scale,0.8,RollingCalib-ClosedLoop-ScenarioMPC-Feedback (ours),0.01429440389294404,7740864.815242498
+inflow_scale,0.9,StaticCalib-OpenLoop-DetMPC,0.023114355231143552,6874730.179484834
+inflow_scale,0.9,RollingCalib-OpenLoop-DetMPC,0.023114355231143552,6876341.105271294
+inflow_scale,0.9,RollingCalib-ClosedLoop-ScenarioMPC-Feedback (ours),0.023114355231143552,6865512.079591469
+inflow_scale,1.0,StaticCalib-OpenLoop-DetMPC,0.03239051094890511,9202784.040805956
+inflow_scale,1.0,RollingCalib-OpenLoop-DetMPC,0.03239051094890511,9206871.154065887
+inflow_scale,1.0,RollingCalib-ClosedLoop-ScenarioMPC-Feedback (ours),0.03223844282238443,9170325.927193282
+inflow_scale,1.1,StaticCalib-OpenLoop-DetMPC,0.041818734793187345,15151284.54677251
+inflow_scale,1.1,RollingCalib-OpenLoop-DetMPC,0.041818734793187345,15159501.058989836
+inflow_scale,1.1,RollingCalib-ClosedLoop-ScenarioMPC-Feedback (ours),0.041818734793187345,15133038.630957546
+inflow_scale,1.2,StaticCalib-OpenLoop-DetMPC,0.06767031630170316,25730977.604387198
+inflow_scale,1.2,RollingCalib-OpenLoop-DetMPC,0.06782238442822384,25742458.768059228
+inflow_scale,1.2,RollingCalib-ClosedLoop-ScenarioMPC-Feedback (ours),0.06767031630170316,25638618.116855174
+obs_sparse_delay,"miss=0.0,delay=0",Closed-loop (ours),0.03239051094890511,9180225.006391196
+obs_sparse_delay,"miss=0.0,delay=1",Closed-loop (ours),0.03239051094890511,9186499.399166917
+obs_sparse_delay,"miss=0.0,delay=3",Closed-loop (ours),0.03239051094890511,9186345.851122322
+obs_sparse_delay,"miss=0.1,delay=0",Closed-loop (ours),0.03223844282238443,9170602.391888095
+obs_sparse_delay,"miss=0.1,delay=1",Closed-loop (ours),0.03223844282238443,9173963.543093685
+obs_sparse_delay,"miss=0.1,delay=3",Closed-loop (ours),0.03239051094890511,9187652.95655161
+obs_sparse_delay,"miss=0.3,delay=0",Closed-loop (ours),0.03239051094890511,9182249.777190303
+obs_sparse_delay,"miss=0.3,delay=1",Closed-loop (ours),0.03223844282238443,9162497.752752192
+obs_sparse_delay,"miss=0.3,delay=3",Closed-loop (ours),0.03223844282238443,9165542.308165697
+obs_sparse_delay,"miss=0.5,delay=0",Closed-loop (ours),0.03239051094890511,9206809.021467803
+obs_sparse_delay,"miss=0.5,delay=1",Closed-loop (ours),0.03239051094890511,9191579.358169258
+obs_sparse_delay,"miss=0.5,delay=3",Closed-loop (ours),0.03223844282238443,9179225.929857032

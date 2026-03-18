@@ -1,0 +1,36 @@
+topic: "Rolling calibration of inflow-forecast parameters for real-time forecast-driven scheduling and closed-loop coupling"
+paper_type: "empirical (tentative)"
+primary_claim:
+  id: C1
+  statement: "A closed-loop coupling of inflow forecasting, dispatch optimization, and implementation feedback with rolling parameter calibration improves operational performance versus open-loop or static-calibration baselines."
+secondary_claims:
+  - id: C2
+    statement: "Rolling or online parameter estimation improves short-term inflow forecast accuracy and uncertainty calibration under nonstationarity."
+  - id: C3
+    statement: "Uncertainty-aware dispatch (scenario/ensemble based) yields more reliable operations when integrated with rolling calibration."
+  - id: C4
+    statement: "The framework is implementable as a periodic decision cycle with practical data and computation requirements."
+non_goals:
+  - "Designing a new deep learning architecture unrelated to dispatch coupling."
+  - "Long-term seasonal planning or climate-change attribution."
+  - "Governance or policy analysis beyond operational optimization."
+novelty_hypotheses:
+  - "Jointly rolling parameter calibration and dispatch optimization in a single closed-loop workflow is underexplored in reservoir operation literature."
+  - "Implementation feedback (post-dispatch outcomes) materially improves subsequent forecast and dispatch decisions."
+risk_factors:
+  - "No accessible case-study data with required operational variables."
+  - "Rolling calibration gains are marginal compared to simpler baselines."
+  - "Closed-loop coupling adds complexity without measurable benefit."
+  - "EnKF or rolling estimation becomes unstable under sparse observations."
+likely_reviewer_objections:
+  - "Method is a combination of known components without clear novelty."
+  - "Results may be site-specific and not generalizable."
+  - "Baselines are weak or not representative of current practice."
+assumptions:
+  - "Case study provides historical inflow, reservoir states, and release/operation records."
+  - "Forecast horizon is hours to days; decision cycle is daily or sub-daily."
+  - "Performance metrics include both forecast skill and operational objectives."
+dependencies:
+  - "Confirm target reservoir, objectives, and data availability."
+  - "Decide forecast model class (conceptual hydrological vs ML)."
+  - "Decide dispatch optimizer (MPC, stochastic DP, rule-based + search)."

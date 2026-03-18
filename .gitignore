@@ -1,5 +1,8 @@
 ## Core latex/pdflatex auxiliary files:
 .DS_Store
+.gemini_cli_home/
+__pycache__/
+*.pyc
 *.aux
 *.lof
 *.log
@@ -312,5 +315,24 @@ TSWLatexianTemp*
 __pycache__/
 *.py[cod]
 
+# Local agent/runtime settings
+.codex/settings.local.json
+
+# Public-release cleanup
+**/notes/arxiv-registry.sqlite3*
+**/data/raw/
+**/__MACOSX/
+**/main_tmp.pdf
+**/paper/results/run_manifest.json
+
 
 main.template.pdf
+
+# Temp figure/paper check directories
+**/.tmp_*/
+
+# Project-local agent settings
+**/claude_settings.json
+
+# Claude Code local config inside skills
+.codex/skills/.claude/

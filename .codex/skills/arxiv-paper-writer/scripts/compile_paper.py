@@ -9,7 +9,9 @@ import subprocess
 import sys
 from pathlib import Path
 
-from paper_utils import check_latex_available
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "_shared"))
+
+from paper_utils import check_latex_available  # noqa: E402
 
 
 def run(cmd: list[str], cwd: Path) -> int:

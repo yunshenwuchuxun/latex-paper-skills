@@ -1,0 +1,68 @@
+{
+  "451": {
+    "RollingCalib-ClosedLoop-ScenarioMPC-Feedback (ours)": {
+      "calib_s": 3.7396715328582825e-05,
+      "dispatch_s": 0.03318923398722633,
+      "total_s": 0.03389624060218921
+    },
+    "RollingCalib-OpenLoop-DetMPC": {
+      "calib_s": 3.87763686132797e-05,
+      "dispatch_s": 0.00474366875000056,
+      "total_s": 0.005452452782846868
+    },
+    "RollingCalib-OpenLoop-ScenarioMPC": {
+      "calib_s": 3.8308850365151646e-05,
+      "dispatch_s": 0.03350507636861274,
+      "total_s": 0.03421741970802904
+    },
+    "StaticCalib-OpenLoop-DetMPC": {
+      "calib_s": 5.014142336825073e-07,
+      "dispatch_s": 0.004358736770073341,
+      "total_s": 0.004935359717153246
+    }
+  },
+  "597": {
+    "RollingCalib-ClosedLoop-ScenarioMPC-Feedback (ours)": {
+      "calib_s": 3.8249817518297516e-05,
+      "dispatch_s": 0.008705290739051113,
+      "total_s": 0.009385216697080279
+    },
+    "RollingCalib-OpenLoop-DetMPC": {
+      "calib_s": 3.452623175155332e-05,
+      "dispatch_s": 0.0015001777828468497,
+      "total_s": 0.002070720574817918
+    },
+    "RollingCalib-OpenLoop-ScenarioMPC": {
+      "calib_s": 3.944101277391266e-05,
+      "dispatch_s": 0.008908391377736715,
+      "total_s": 0.009624177326642093
+    },
+    "StaticCalib-OpenLoop-DetMPC": {
+      "calib_s": 3.510036498794821e-07,
+      "dispatch_s": 0.0015171076642333456,
+      "total_s": 0.0020446145985399617
+    }
+  },
+  "601": {
+    "RollingCalib-ClosedLoop-ScenarioMPC-Feedback (ours)": {
+      "calib_s": 3.4589096715136825e-05,
+      "dispatch_s": 0.01695036546532813,
+      "total_s": 0.01755436660583992
+    },
+    "RollingCalib-OpenLoop-DetMPC": {
+      "calib_s": 3.006947992754252e-05,
+      "dispatch_s": 0.002244112089416093,
+      "total_s": 0.002759844890510971
+    },
+    "RollingCalib-OpenLoop-ScenarioMPC": {
+      "calib_s": 3.4701687955785525e-05,
+      "dispatch_s": 0.016978530383211805,
+      "total_s": 0.01759893156934224
+    },
+    "StaticCalib-OpenLoop-DetMPC": {
+      "calib_s": 3.1719890568823275e-07,
+      "dispatch_s": 0.002249842518248404,
+      "total_s": 0.0027319836222618357
+    }
+  }
+}

@@ -134,3 +134,30 @@ A replaced by simple X |         |         |
   "The conclusions above are contingent on the completion of experiments X, Y, Z."
 - Never claim superiority, novelty validation, or statistical significance
   based on placeholder data.
+
+## 6. Using Existing Baseline Code
+
+When your experiments build on an existing open-source implementation:
+
+### Selecting the upstream repo
+- Prefer official author implementations over third-party reproductions.
+- Verify: code runs on current CUDA/Python versions, results match paper claims.
+- Check license compatibility (MIT/Apache/BSD preferred; GPL may restrict).
+
+### Fork & Extend workflow
+1. Clone or fork the upstream repo into `experiments/`.
+2. Record the exact commit hash in README → "Upstream Repository" table.
+3. Create our method as an **additive module** — minimize changes to upstream code.
+4. Keep upstream evaluation scripts intact for fair comparison.
+5. Add our configs in `configs/` without modifying upstream defaults.
+
+### Fair comparison protocol
+- Same data splits, preprocessing, tokenization for all methods.
+- Same hardware and batch size (or document differences and normalize).
+- For baselines without code: cite paper-reported numbers with "†" marker.
+- For baselines with code: re-run in our environment; report both our-run and paper-reported.
+
+### Documentation requirements
+- `CHANGES_FROM_UPSTREAM.md`: list every file modified and why.
+- `requirements.txt`: merge upstream deps with ours, mark origin of each.
+- `baselines.csv` → `code_url`: fill for every baseline with public code.

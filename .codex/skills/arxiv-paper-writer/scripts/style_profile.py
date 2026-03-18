@@ -8,7 +8,9 @@ import re
 import sys
 from pathlib import Path
 
-from paper_utils import (
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "_shared"))
+
+from paper_utils import (  # noqa: E402
     build_default_style_profile,
     count_citations,
     extract_section_events,

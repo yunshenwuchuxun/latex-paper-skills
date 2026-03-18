@@ -10,13 +10,9 @@ import sys
 from pathlib import Path
 
 
-def review_scripts_dir() -> Path:
-    return Path(__file__).resolve().parents[2] / "arxiv-paper-writer" / "scripts"
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "_shared"))
 
-
-sys.path.insert(0, str(review_scripts_dir()))
-
-from paper_utils import (  # type: ignore  # noqa: E402
+from paper_utils import (  # noqa: E402
     build_issues_filename,
     build_plan_filename,
     check_latex_available,
@@ -59,6 +55,48 @@ def init_innovation_notes(output_dir: Path) -> None:
         if dest_path.exists():
             continue
         dest_path.write_text(read_template(template_name), encoding="utf-8")
+
+
+def init_design_artifacts(output_dir: Path) -> None:
+    design_dir = output_dir / "notes" / "design"
+    design_dir.mkdir(parents=True, exist_ok=True)
+
+    templates = {
+        "baselines.csv": "baselines-template.csv",
+        "method-components.csv": "method-components-template.csv",
+        "experiment-matrix.csv": "experiment-matrix-template.csv",
+    }
+    for dest_name, template_name in templates.items():
+        dest_path = design_dir / dest_name
+        if dest_path.exists():
+            continue
+        dest_path.write_text(read_template(template_name), encoding="utf-8")
+
+
+def init_results_dir(output_dir: Path) -> None:
+    results_dir = output_dir / "results"
+    results_dir.mkdir(parents=True, exist_ok=True)
+    readme = results_dir / "README.md"
+    if not readme.exists():
+        readme.write_text(
+            "\n".join(
+                [
+                    "# Results folder",
+                    "",
+                    "This folder is the interface for `results-backfill`.",
+                    "",
+                    "Place verified experiment outputs here (CSV/JSON). Recommended canonical files:",
+                    "- main_results.csv",
+                    "- ablation_results.csv",
+                    "- robustness_results.csv",
+                    "- efficiency_results.csv",
+                    "",
+                    "Do not fabricate numbers. Use placeholders in the paper until verified results exist.",
+                    "",
+                ]
+            ),
+            encoding="utf-8",
+        )
 
 
 def refresh_literature_notes(output_dir: Path) -> int:
@@ -157,6 +195,8 @@ def main() -> int:
     plan_dir.mkdir(parents=True, exist_ok=True)
     issues_dir.mkdir(parents=True, exist_ok=True)
     init_innovation_notes(output_dir)
+    init_design_artifacts(output_dir)
+    init_results_dir(output_dir)
 
     plan_filename = build_plan_filename(timestamp, slug)
     issues_filename = build_issues_filename(timestamp, slug)

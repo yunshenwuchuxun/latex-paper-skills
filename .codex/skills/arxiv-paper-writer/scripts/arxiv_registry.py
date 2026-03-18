@@ -50,7 +50,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from paper_utils import now_iso
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "_shared"))
+
+from paper_utils import now_iso  # noqa: E402
 
 
 ATOM_NS = {

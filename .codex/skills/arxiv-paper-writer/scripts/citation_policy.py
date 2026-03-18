@@ -8,21 +8,36 @@ import csv
 import re
 import sqlite3
 import sys
+import urllib.parse
 from pathlib import Path
 from typing import Any
 
-from arxiv_registry import connect, ensure_initialized, init_schema
-from paper_utils import (
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "_shared"))
+
+from arxiv_registry import connect, ensure_initialized, init_schema  # noqa: E402
+from paper_utils import (  # noqa: E402
     count_citations,
+    extract_bibtex_field,
     extract_citation_commands,
+    extract_cite_context,
     extract_section_events,
     find_section_path_for_position,
     load_paper_config,
     normalize_text,
     normalize_text_tokens,
+    now_iso,
     parse_bibtex_entries,
 )
-from source_policy_utils import assess_work, ensure_policy_schema, load_external_metadata, resolve_work_ids, venue_matches
+from source_policy_utils import (  # noqa: E402
+    assess_work,
+    build_crossref_candidate,
+    ensure_policy_schema,
+    json_fetch,
+    load_external_metadata,
+    resolve_work_ids,
+    title_similarity,
+    venue_matches,
+)
 
 
 def read_issue_rows(path: Path) -> list[dict[str, str]]:
@@ -247,7 +262,11 @@ def cmd_audit_tex(args: argparse.Namespace) -> int:
             cited_keys = citation_map.get(section_path, set())
             if not cited_keys:
                 print(f"- {issue['ID']}: no citations found for section path '{issue.get('Section_Path')}'")
-                if args.fail_on_policy:
+                # Only treat this as a policy failure if the writing issue expected citations.
+                # (e.g., Abstract/Conclusion often legitimately have 0 citations.)
+                target_raw = str(issue.get("Target_Citations") or "0").strip()
+                target_citations = int(target_raw) if target_raw.isdigit() else 0
+                if args.fail_on_policy and target_citations > 0:
                     failures += 1
                 continue
 
@@ -361,6 +380,295 @@ def cmd_lint_bib(args: argparse.Namespace) -> int:
     return 0
 
 
+def _ensure_bib_verifications(conn: sqlite3.Connection) -> None:
+    """Create the bib_verifications cache table if missing."""
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS bib_verifications (
+          bib_key TEXT PRIMARY KEY,
+          title TEXT,
+          author TEXT,
+          year TEXT,
+          crossref_doi TEXT,
+          crossref_title TEXT,
+          crossref_venue TEXT,
+          match_score REAL NOT NULL DEFAULT 0,
+          status TEXT NOT NULL,
+          verified_at TEXT NOT NULL
+        );
+        """
+    )
+
+
+def _store_bib_verification(
+    conn: sqlite3.Connection,
+    key: str,
+    title: str | None,
+    author: str,
+    year: str | None,
+    cr_doi: str,
+    cr_title: str,
+    cr_venue: str,
+    score: float,
+    status: str,
+) -> None:
+    conn.execute(
+        """
+        INSERT INTO bib_verifications(bib_key, title, author, year,
+          crossref_doi, crossref_title, crossref_venue,
+          match_score, status, verified_at)
+        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(bib_key) DO UPDATE SET
+          title=excluded.title, author=excluded.author, year=excluded.year,
+          crossref_doi=excluded.crossref_doi, crossref_title=excluded.crossref_title,
+          crossref_venue=excluded.crossref_venue,
+          match_score=excluded.match_score, status=excluded.status,
+          verified_at=excluded.verified_at;
+        """,
+        (key, title, author, year, cr_doi, cr_title, cr_venue, score, status, now_iso()),
+    )
+    conn.commit()
+
+
+def cmd_verify_bib(args: argparse.Namespace) -> int:
+    """Verify all BibTeX entries against CrossRef by title+author search."""
+    bib_path = args.project_dir / "ref.bib"
+    if not bib_path.exists():
+        print(f"error: ref.bib not found in {args.project_dir}", file=sys.stderr)
+        return 1
+
+    content = bib_path.read_text(encoding="utf-8")
+    entries = parse_bibtex_entries(content)
+    if not entries:
+        print("No BibTeX entries found.")
+        return 0
+
+    with connect(args.db) as conn:
+        init_schema(conn)
+        ensure_initialized(conn)
+        ensure_policy_schema(conn)
+        _ensure_bib_verifications(conn)
+
+        results: list[dict[str, Any]] = []
+        for entry in entries:
+            key = entry["key"]
+
+            # Skip entries already tracked in the arXiv registry
+            tracked = conn.execute(
+                "SELECT work_id FROM citation_keys WHERE key = ?;", (key,)
+            ).fetchone()
+            if tracked is not None:
+                results.append({"key": key, "status": "TRACKED", "score": 100.0, "title": ""})
+                continue
+
+            # Use cache unless --refresh
+            if not args.refresh:
+                cached = conn.execute(
+                    "SELECT * FROM bib_verifications WHERE bib_key = ?;", (key,)
+                ).fetchone()
+                if cached is not None:
+                    results.append({
+                        "key": key,
+                        "status": str(cached["status"]),
+                        "score": float(cached["match_score"]),
+                        "title": str(cached["crossref_title"] or ""),
+                    })
+                    continue
+
+            title = extract_bibtex_field(entry["text"], "title")
+            author = extract_bibtex_field(entry["text"], "author")
+            year = extract_bibtex_field(entry["text"], "year")
+
+            if not title and not author:
+                _store_bib_verification(conn, key, title, "", year, "", "", "", 0.0, "MISSING_FIELDS")
+                results.append({"key": key, "status": "MISSING_FIELDS", "score": 0.0, "title": ""})
+                continue
+
+            # Build CrossRef query
+            query: dict[str, str] = {"rows": "3"}
+            if title:
+                query["query.title"] = title
+            first_author = ""
+            if author:
+                first_author = author.split(" and ")[0].strip()
+                if first_author:
+                    query["query.author"] = first_author
+
+            url = f"https://api.crossref.org/works?{urllib.parse.urlencode(query)}"
+            _, payload = json_fetch(conn, kind="crossref_bib_verify", url=url, timeout_s=args.timeout_s)
+
+            best_score = 0.0
+            best_candidate: dict[str, Any] | None = None
+            if isinstance(payload, dict):
+                items = (((payload.get("message") or {}).get("items")) or [])[:3]
+                for item in items:
+                    if not isinstance(item, dict):
+                        continue
+                    candidate = build_crossref_candidate(item)
+                    score = title_similarity(title or "", str(candidate.get("title") or "")) * 70.0
+                    if first_author:
+                        norm_first = normalize_text(first_author)
+                        candidate_authors = [normalize_text(a) for a in candidate.get("authors") or []]
+                        if any(norm_first in a or a in norm_first for a in candidate_authors):
+                            score += 15.0
+                    if year and candidate.get("published_year"):
+                        try:
+                            if abs(int(year) - int(candidate["published_year"])) <= 1:
+                                score += 10.0
+                        except (ValueError, TypeError):
+                            pass
+                    if candidate.get("is_formal_publication"):
+                        score += 5.0
+                    if score > best_score:
+                        best_score = score
+                        best_candidate = candidate
+
+            if best_score >= 70:
+                status = "VERIFIED"
+            elif best_score >= 45:
+                status = "LIKELY"
+            else:
+                status = "UNVERIFIED"
+
+            cr_doi = str((best_candidate or {}).get("doi") or "")
+            cr_title = str((best_candidate or {}).get("title") or "")
+            cr_venue = str((best_candidate or {}).get("venue") or "")
+
+            _store_bib_verification(conn, key, title, first_author, year, cr_doi, cr_title, cr_venue, best_score, status)
+            results.append({"key": key, "status": status, "score": best_score, "title": cr_title})
+
+        # Summary
+        print(f"BibTeX verification: {len(entries)} entries")
+        status_counts: dict[str, int] = {}
+        for r in results:
+            status_counts[r["status"]] = status_counts.get(r["status"], 0) + 1
+        for st in sorted(status_counts):
+            print(f"  {st}: {status_counts[st]}")
+
+        unverified = [r for r in results if r["status"] in {"UNVERIFIED", "MISSING_FIELDS"}]
+        if unverified:
+            print("\nEntries needing attention:")
+            for r in unverified:
+                print(f"  - {r['key']}: {r['status']} (score={r['score']:.1f})")
+
+        if args.fail_on_unverified and any(r["status"] == "UNVERIFIED" for r in results):
+            return 1
+    return 0
+
+
+def cmd_audit_context(args: argparse.Namespace) -> int:
+    """Audit citation-context relevance in main.tex."""
+    tex_path = args.project_dir / "main.tex"
+    if not tex_path.exists():
+        print(f"error: main.tex not found in {args.project_dir}", file=sys.stderr)
+        return 1
+
+    content = tex_path.read_text(encoding="utf-8")
+    citations = extract_citation_commands(content)
+    sections = extract_section_events(content)
+
+    if not citations:
+        print("No citations found in main.tex.")
+        return 0
+
+    with connect(args.db) as conn:
+        init_schema(conn)
+        ensure_initialized(conn)
+        ensure_policy_schema(conn)
+        _ensure_bib_verifications(conn)
+
+        results: list[dict[str, Any]] = []
+        for cite_cmd in citations:
+            section_path = find_section_path_for_position(sections, int(cite_cmd["start"]))
+            context_text = extract_cite_context(content, int(cite_cmd["start"]), int(cite_cmd["end"]))
+
+            for key in cite_cmd["keys"]:
+                paper_title = ""
+                paper_abstract = ""
+
+                # Try the arXiv registry first
+                row = conn.execute(
+                    """
+                    SELECT w.title, w.summary
+                    FROM citation_keys ck
+                    JOIN works w ON w.work_id = ck.work_id
+                    WHERE ck.key = ?;
+                    """,
+                    (key,),
+                ).fetchone()
+                if row:
+                    paper_title = str(row["title"] or "")
+                    paper_abstract = str(row["summary"] or "")
+                else:
+                    # Fallback to bib_verifications
+                    bv = conn.execute(
+                        "SELECT crossref_title FROM bib_verifications WHERE bib_key = ?;",
+                        (key,),
+                    ).fetchone()
+                    if bv and bv["crossref_title"]:
+                        paper_title = str(bv["crossref_title"])
+
+                if not paper_title:
+                    results.append({
+                        "key": key,
+                        "section": section_path or "(preamble)",
+                        "context": context_text[:120],
+                        "paper_title": "(unknown)",
+                        "score": -1.0,
+                        "classification": "UNKNOWN",
+                    })
+                    continue
+
+                reference_text = paper_title
+                if paper_abstract:
+                    reference_text += " " + paper_abstract
+                score = title_similarity(context_text, reference_text)
+
+                if score >= 0.15:
+                    classification = "STRONG"
+                elif score >= 0.05:
+                    classification = "WEAK"
+                else:
+                    classification = "SUSPECT"
+
+                results.append({
+                    "key": key,
+                    "section": section_path or "(preamble)",
+                    "context": context_text[:120],
+                    "paper_title": paper_title[:80],
+                    "score": score,
+                    "classification": classification,
+                })
+
+    # Report
+    print(f"Citation-context audit: {len(results)} citation instances")
+    cls_counts: dict[str, int] = {}
+    for r in results:
+        cls_counts[r["classification"]] = cls_counts.get(r["classification"], 0) + 1
+    for cls in sorted(cls_counts):
+        print(f"  {cls}: {cls_counts[cls]}")
+
+    suspects = [r for r in results if r["classification"] == "SUSPECT"]
+    weak = [r for r in results if r["classification"] == "WEAK"]
+
+    if suspects:
+        print("\nSUSPECT citations (score < 0.05):")
+        for r in suspects:
+            print(f"  - [{r['key']}] section={r['section']} score={r['score']:.3f}")
+            print(f"    paper: {r['paper_title']}")
+            print(f"    context: {r['context']}...")
+
+    if weak and args.verbose:
+        print("\nWEAK citations (0.05 <= score < 0.15):")
+        for r in weak:
+            print(f"  - [{r['key']}] section={r['section']} score={r['score']:.3f}")
+            print(f"    paper: {r['paper_title']}")
+
+    if args.fail_on_suspect and suspects:
+        return 1
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Recommend and audit citations using source policy.")
     parser.add_argument("--project-dir", required=True, help="Paper/project directory.")
@@ -389,6 +697,17 @@ def build_parser() -> argparse.ArgumentParser:
     p_lint = sub.add_parser("lint-bib", help="Lint ref.bib for orphans, danglers, duplicates, and missing fields.")
     p_lint.add_argument("--fail-on-lint", action="store_true", help="Return non-zero exit code when lint issues are found.")
     p_lint.set_defaults(fn=cmd_lint_bib)
+
+    p_verify = sub.add_parser("verify-bib", help="Verify non-arXiv BibTeX entries against CrossRef.")
+    p_verify.add_argument("--fail-on-unverified", action="store_true", help="Return non-zero if any entries are UNVERIFIED.")
+    p_verify.add_argument("--timeout-s", type=int, default=20, help="Network timeout in seconds.")
+    p_verify.add_argument("--refresh", action="store_true", help="Re-verify even if cached.")
+    p_verify.set_defaults(fn=cmd_verify_bib)
+
+    p_ctx = sub.add_parser("audit-context", help="Audit citation-context relevance in main.tex.")
+    p_ctx.add_argument("--fail-on-suspect", action="store_true", help="Return non-zero if SUSPECT citations exist.")
+    p_ctx.add_argument("--verbose", action="store_true", help="Also print WEAK citation details.")
+    p_ctx.set_defaults(fn=cmd_audit_context)
 
     return parser
 

@@ -1,0 +1,126 @@
+# Skill Orchestration DAG
+#
+# Machine-readable workflow definition for the paper-writing skill stack.
+# This file does NOT auto-execute skills — it provides a reference DAG
+# (directed acyclic graph) that AI agents can consult to determine
+# which skill comes next, what preconditions must hold, and which
+# artifacts must be present before handoff.
+#
+# Structure:
+#   skills:       map of skill-name → metadata
+#   transitions:  ordered list of from → to edges with conditions
+
+skills:
+  paper-from-zero:
+    path: paper-from-zero/SKILL.md
+    role: router
+    description: Topic → innovation framing → evidence plan → route to writer
+
+  arxiv-paper-writer:
+    path: arxiv-paper-writer/SKILL.md
+    role: executor
+    description: Review / survey paper writer (IEEEtran)
+
+  empirical-paper-writer:
+    path: empirical-paper-writer/SKILL.md
+    role: executor
+    description: Empirical / experimental paper writer (IEEEtran)
+
+  results-backfill:
+    path: results-backfill/SKILL.md
+    role: post-processor
+    description: Back-fill experimental results into a drafted paper
+
+  latex-rhythm-refiner:
+    path: latex-rhythm-refiner/SKILL.md
+    role: post-processor
+    description: Prose rhythm and filler-word refinement pass
+
+  check-collaborators:
+    path: check-collaborators/SKILL.md
+    role: utility
+    description: Health-check for Claude / Gemini collaborator availability
+
+  collaborating-with-claude:
+    path: collaborating-with-claude/SKILL.md
+    role: collaborator
+    description: Claude co-pilot for claim stress-testing and analysis
+
+  collaborating-with-gemini:
+    path: collaborating-with-gemini/SKILL.md
+    role: collaborator
+    description: Gemini co-pilot for literature mapping and gap checks
+
+transitions:
+  # ── Router → Writers ──────────────────────────────────────────────
+  - from: paper-from-zero
+    to: arxiv-paper-writer
+    condition: "router-decision.md route == review"
+    artifacts_required:
+      - brief/topic-brief.md
+      - brief/contribution-map.yaml
+      - brief/evidence-matrix.csv
+      - plan/outline-contract.md
+      - plan/router-decision.md
+    validation: "python3 paper-from-zero/validate_handoff.py --project-dir <paper_dir>"
+
+  - from: paper-from-zero
+    to: empirical-paper-writer
+    condition: "router-decision.md route == empirical"
+    artifacts_required:
+      - brief/topic-brief.md
+      - brief/contribution-map.yaml
+      - brief/evidence-matrix.csv
+      - plan/outline-contract.md
+      - plan/router-decision.md
+    validation: "python3 paper-from-zero/validate_handoff.py --project-dir <paper_dir>"
+
+  # ── Writers → Rhythm Refiner ──────────────────────────────────────
+  - from: arxiv-paper-writer
+    to: latex-rhythm-refiner
+    condition: "All writing issues (Wx) are DONE"
+    phase: "Phase 2.5"
+
+  - from: empirical-paper-writer
+    to: latex-rhythm-refiner
+    condition: "All writing issues (Wx) are DONE"
+    phase: "Phase 2.5"
+
+  # ── Empirical → Results Backfill ──────────────────────────────────
+  - from: empirical-paper-writer
+    to: results-backfill
+    condition: "Draft complete with placeholders; experiments run externally"
+    artifacts_required:
+      - notes/design/experiment-matrix.csv
+      - paper/results/  # directory with result CSVs
+
+  # ── Collaborator hooks (non-blocking) ─────────────────────────────
+  - from: paper-from-zero
+    to: collaborating-with-gemini
+    condition: "Step 2 (literature scan) complete"
+    mode: "literature-map"
+    blocking: false
+
+  - from: paper-from-zero
+    to: collaborating-with-claude
+    condition: "Step 5 (contribution map draft) complete"
+    mode: "claim-stress-test"
+    blocking: false
+
+  - from: paper-from-zero
+    to: collaborating-with-gemini
+    condition: "Step 6 (evidence matrix draft) complete; avg evidence/claim < 3"
+    mode: "evidence-matrix-gap-check"
+    blocking: false
+
+  - from: paper-from-zero
+    to: collaborating-with-claude
+    condition: "Step 6 complete; coverage seems adequate"
+    mode: "evidence-sufficiency-audit"
+    blocking: false
+
+  # ── Utility (can be invoked at any time) ──────────────────────────
+  - from: "*"
+    to: check-collaborators
+    condition: "Before any collaborator hook"
+    blocking: false

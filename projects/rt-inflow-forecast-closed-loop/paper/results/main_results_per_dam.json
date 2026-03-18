@@ -1,0 +1,80 @@
+{
+  "451": {
+    "RollingCalib-ClosedLoop-ScenarioMPC-Feedback (ours)": {
+      "objective": 15984784.197586603,
+      "reliability": 0.9032846715328468,
+      "violation_rate": 0.09671532846715329,
+      "vulnerability": 0.4297631382149982
+    },
+    "RollingCalib-OpenLoop-DetMPC": {
+      "objective": 16086642.307166083,
+      "reliability": 0.9028284671532847,
+      "violation_rate": 0.09717153284671533,
+      "vulnerability": 0.4295312314839021
+    },
+    "RollingCalib-OpenLoop-ScenarioMPC": {
+      "objective": 16029987.963409532,
+      "reliability": 0.9028284671532847,
+      "violation_rate": 0.09717153284671533,
+      "vulnerability": 0.4285380092176198
+    },
+    "StaticCalib-OpenLoop-DetMPC": {
+      "objective": 16072803.243738234,
+      "reliability": 0.9028284671532847,
+      "violation_rate": 0.09717153284671533,
+      "vulnerability": 0.4292889246372001
+    }
+  },
+  "597": {
+    "RollingCalib-ClosedLoop-ScenarioMPC-Feedback (ours)": {
+      "objective": 11518327.143037,
+      "reliability": 1.0,
+      "violation_rate": 0.0,
+      "vulnerability": 0.0
+    },
+    "RollingCalib-OpenLoop-DetMPC": {
+      "objective": 11518550.947889935,
+      "reliability": 1.0,
+      "violation_rate": 0.0,
+      "vulnerability": 0.0
+    },
+    "RollingCalib-OpenLoop-ScenarioMPC": {
+      "objective": 11518286.241716284,
+      "reliability": 1.0,
+      "violation_rate": 0.0,
+      "vulnerability": 0.0
+    },
+    "StaticCalib-OpenLoop-DetMPC": {
+      "objective": 11520114.23203187,
+      "reliability": 1.0,
+      "violation_rate": 0.0,
+      "vulnerability": 0.0
+    }
+  },
+  "601": {
+    "RollingCalib-ClosedLoop-ScenarioMPC-Feedback (ours)": {
+      "objective": 15450.525541305624,
+      "reliability": 1.0,
+      "violation_rate": 0.0,
+      "vulnerability": 0.0
+    },
+    "RollingCalib-OpenLoop-DetMPC": {
+      "objective": 15420.207141639845,
+      "reliability": 1.0,
+      "violation_rate": 0.0,
+      "vulnerability": 0.0
+    },
+    "RollingCalib-OpenLoop-ScenarioMPC": {
+      "objective": 15448.581746006323,
+      "reliability": 1.0,
+      "violation_rate": 0.0,
+      "vulnerability": 0.0
+    },
+    "StaticCalib-OpenLoop-DetMPC": {
+      "objective": 15434.646647762824,
+      "reliability": 1.0,
+      "violation_rate": 0.0,
+      "vulnerability": 0.0
+    }
+  }
+}

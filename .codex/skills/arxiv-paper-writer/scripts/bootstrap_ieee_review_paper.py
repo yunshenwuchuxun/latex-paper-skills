@@ -9,7 +9,11 @@ import subprocess
 import sys
 from pathlib import Path
 
-from paper_utils import ensure_paper_config, get_template_dir, now_timestamp, slugify, validate_slug, validate_timestamp
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "_shared"))
+
+from paper_utils import ensure_paper_config, now_timestamp, slugify, validate_slug, validate_timestamp  # noqa: E402
+
+_SKILL_ASSETS = Path(__file__).resolve().parents[1] / "assets"
 
 
 def run(cmd: list[str]) -> int:
@@ -22,7 +26,7 @@ def scaffold_project(folder_name: str, out_dir: Path) -> Path:
     if dest_dir.exists():
         raise SystemExit(f"Destination already exists: {dest_dir}")
 
-    template_dir = get_template_dir()
+    template_dir = _SKILL_ASSETS / "template"
     ignore = shutil.ignore_patterns(
         "*.aux",
         "*.bbl",

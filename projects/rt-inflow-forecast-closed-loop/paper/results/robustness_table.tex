@@ -1,0 +1,27 @@
+{\setlength{\tabcolsep}{2pt}\scriptsize
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{p{0.26\columnwidth}p{0.22\columnwidth}p{0.30\columnwidth}cc}
+\toprule
+Stress & Severity & Method & Viol. & Obj. ($\times10^6$) \\
+\midrule
+inflow\_scale & 0.8 & Static det. MPC (baseline) & 0.014 & 7.74 \\
+inflow\_scale & 0.8 & Rolling det. MPC & 0.014 & 7.74 \\
+inflow\_scale & 0.8 & Closed-loop scenario MPC (ours) & 0.014 & 7.74 \\
+inflow\_scale & 0.9 & Static det. MPC (baseline) & 0.023 & 6.87 \\
+inflow\_scale & 0.9 & Rolling det. MPC & 0.023 & 6.88 \\
+inflow\_scale & 0.9 & Closed-loop scenario MPC (ours) & 0.023 & 6.87 \\
+inflow\_scale & 1.0 & Static det. MPC (baseline) & 0.032 & 9.20 \\
+inflow\_scale & 1.0 & Rolling det. MPC & 0.032 & 9.21 \\
+inflow\_scale & 1.0 & Closed-loop scenario MPC (ours) & 0.032 & 9.17 \\
+inflow\_scale & 1.1 & Static det. MPC (baseline) & 0.042 & 15.15 \\
+inflow\_scale & 1.1 & Rolling det. MPC & 0.042 & 15.16 \\
+inflow\_scale & 1.1 & Closed-loop scenario MPC (ours) & 0.042 & 15.13 \\
+inflow\_scale & 1.2 & Static det. MPC (baseline) & 0.068 & 25.73 \\
+inflow\_scale & 1.2 & Rolling det. MPC & 0.068 & 25.74 \\
+inflow\_scale & 1.2 & Closed-loop scenario MPC (ours) & 0.068 & 25.64 \\
+obs\_sparse\_delay & miss=0.0,delay=0 & Closed-loop (ours) & 0.032 & 9.18 \\
+obs\_sparse\_delay & miss=0.0,delay=1 & Closed-loop (ours) & 0.032 & 9.19 \\
+obs\_sparse\_delay & miss=0.0,delay=3 & Closed-loop (ours) & 0.032 & 9.19 \\
+\bottomrule
+\end{tabular}}
+}

@@ -7,9 +7,11 @@ import argparse
 import sys
 from pathlib import Path
 
-from arxiv_registry import connect, ensure_initialized, init_schema
-from source_policy_utils import assess_work, ensure_policy_schema, resolve_work_ids
-from paper_utils import load_paper_config
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "_shared"))
+
+from arxiv_registry import connect, ensure_initialized, init_schema  # noqa: E402
+from source_policy_utils import assess_work, ensure_policy_schema, resolve_work_ids  # noqa: E402
+from paper_utils import load_paper_config  # noqa: E402
 
 
 def cmd_rank(args: argparse.Namespace) -> int:

@@ -18,13 +18,9 @@ from pathlib import Path
 from typing import Any
 
 
-def review_scripts_dir() -> Path:
-    return Path(__file__).resolve().parents[2] / "arxiv-paper-writer" / "scripts"
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "_shared"))
 
-
-sys.path.insert(0, str(review_scripts_dir()))
-
-from paper_utils import extract_citation_commands, parse_bibtex_entries  # type: ignore  # noqa: E402
+from paper_utils import extract_citation_commands, parse_bibtex_entries  # noqa: E402
 
 
 AUTO_BEGIN = "<!-- AUTO-GENERATED: literature-notes v1 -->"

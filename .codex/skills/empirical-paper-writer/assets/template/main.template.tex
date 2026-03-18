@@ -51,6 +51,13 @@ the key outcome only if verified, and the main implication. Avoid citations here
 [State the problem, why existing work is insufficient, the main contribution, and
 the paper roadmap. Keep every non-trivial claim citation-backed.]
 
+\begin{figure}[t]
+\centering
+\fbox{\parbox{0.95\columnwidth}{\vspace{14mm}\centering System overview (placeholder)\vspace{14mm}}}
+\caption{Problem setting and method overview (placeholder).}
+\label{fig:teaser}
+\end{figure}
+
 \subsection{Contributions (outline)}
 \begin{itemize}[leftmargin=*]
 \item [Contribution 1]: TBD (map to claim IDs in `brief/contribution-map.yaml` if available).
@@ -117,8 +124,48 @@ Ours & -- & -- & -- \\
 \subsection{Ablation Studies}
 [What is removed/changed and why it matters.]
 
+\begin{table}[t]
+\centering
+\caption{Ablation results (placeholder). Use ``--'' for unverified values.}
+\label{tab:ablation_results}
+\begin{tabular}{lccc}
+\toprule
+Variant & Metric 1 & Metric 2 & Cost \\
+\midrule
+Full model & -- & -- & -- \\
+w/o component A & -- & -- & -- \\
+w/o component B & -- & -- & -- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \subsection{Error Analysis / Robustness}
 [Failure cases, robustness checks, or uncertainty analysis.]
+
+\begin{figure}[t]
+\centering
+\fbox{\parbox{0.95\columnwidth}{\vspace{16mm}\centering Robustness / error analysis figure (placeholder)\vspace{16mm}}}
+\caption{Robustness and error analysis (placeholder).}
+\label{fig:robustness}
+\end{figure}
+
+\subsection{Efficiency}
+[Parameters, FLOPs, latency, and any scalability evidence.]
+
+\begin{table}[t]
+\centering
+\caption{Efficiency comparison (placeholder). Use ``--'' for unverified values.}
+\label{tab:efficiency}
+\begin{tabular}{lccc}
+\toprule
+Method & Params (M) & FLOPs (G) & Latency (ms) \\
+\midrule
+Baseline A & -- & -- & -- \\
+Baseline B & -- & -- & -- \\
+Ours & -- & -- & -- \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \section{Limitations}
 [Explicit limitations, open risks, and evidence not yet collected.]

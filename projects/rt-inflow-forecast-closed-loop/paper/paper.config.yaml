@@ -1,0 +1,16 @@
+topic: Rolling Calibration for Real-Time Reservoir Inflow Forecasting and Closed-Loop Forecast-Dispatch-Implementation Coupling
+workflow_mode: standard
+target_venue: arXiv
+preferred_venues:
+  - arXiv
+style_mode: neutral
+style_anchor_papers: []
+runtime:
+  conda_env: ""
+  python: ""
+source_policy:
+  require_published_version_if_available: true
+  min_tier_ab_ratio_core: 0.8
+  min_tier_ab_ratio_standard: 0.6
+  max_tier_c_ratio_core: 0.2
+  preferred_venue_boost: soft

@@ -138,9 +138,19 @@ def validate_evidence_matrix(csv_path: Path, claim_ids: list[str]) -> list[str]:
 
     if rows == 0:
         return ["brief/evidence-matrix.csv has no data rows."]
+    if rows < 3:
+        errors.append(f"brief/evidence-matrix.csv has only {rows} data row(s); expected at least 3.")
     missing = [cid for cid in claim_ids if cid and cid not in present]
     if missing:
         errors.append(f"brief/evidence-matrix.csv missing rows for claim_id(s): {', '.join(missing)}")
+    # Check Evidence_Type column is present and non-empty
+    with csv_path.open(newline="", encoding="utf-8-sig") as handle:
+        reader = csv.DictReader(handle)
+        et_col = next((n for n in (reader.fieldnames or []) if n.strip().lower() == "evidence_type"), None)
+        if et_col:
+            for i, row in enumerate(reader, start=2):
+                if not (row.get(et_col) or "").strip():
+                    errors.append(f"brief/evidence-matrix.csv row {i}: Evidence_Type is empty")
     return errors
 
 
@@ -181,9 +191,14 @@ def main() -> int:
     statement = extract_primary_claim_statement(contribution_text)
     if not statement.strip():
         errors.append("brief/contribution-map.yaml primary_claim.statement is empty.")
+    elif statement.strip().lower() in {"tbd", "[tbd]", "todo", "[todo]"}:
+        errors.append("brief/contribution-map.yaml primary_claim.statement is a placeholder (TBD/TODO).")
 
     if not (has_any_list_items(contribution_text, "risk_factors") or has_any_list_items(contribution_text, "likely_reviewer_objections")):
         errors.append("brief/contribution-map.yaml must include at least one risk factor or reviewer objection.")
+
+    if not has_any_list_items(contribution_text, "secondary_claims"):
+        errors.append("brief/contribution-map.yaml should have at least one secondary_claim.")
 
     primary_id, secondary_ids = extract_claim_ids(contribution_text)
     claim_ids = [cid for cid in [primary_id, *secondary_ids] if cid]

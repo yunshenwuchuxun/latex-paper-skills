@@ -1,0 +1,29 @@
+# === Base dependencies (scaffold) ===
+numpy
+pandas
+PyYAML
+tqdm
+
+# === Deep learning framework ===
+# Uncomment ONE framework. Pin version after testing.
+torch
+# tensorflow
+# jax[cuda12]
+
+# === Upstream repo dependencies (if forking) ===
+# Copy or merge from upstream requirements.txt here.
+# Example:
+# transformers>=4.35.0
+# datasets>=2.14.0
+
+# === Our additions ===
+# Dependencies specific to our method or experiments.
+# Example:
+# wandb          # experiment tracking (optional)
+# matplotlib     # figure generation
+# scipy          # statistical tests
+
+# === Version lock ===
+# After environment is stable, run:
+#   pip freeze > requirements-lock.txt
+# and commit the lock file for full reproducibility.

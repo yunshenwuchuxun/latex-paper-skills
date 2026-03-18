@@ -1,0 +1,35 @@
+# Default experiment configuration (template).
+project:
+  name: "<PROJECT_NAME>"
+  seed: 42
+  device: "cuda"  # or "cpu"
+  num_runs: 3
+
+paths:
+  # Where to read the experiment matrix from (relative to experiments/).
+  experiment_matrix_csv: "../paper/notes/design/experiment-matrix.csv"
+  # Where to write results (relative to experiments/).
+  results_dir: "../paper/results"
+
+data:
+  # TODO: set your dataset roots and any preprocessing flags
+  dataset_roots:
+    Dataset1: "PATH/TO/Dataset1"
+    Dataset2: "PATH/TO/Dataset2"
+
+model:
+  # TODO: fill in your model hyperparameters
+  name: "model_stub"
+  hidden_dim: 256
+
+training:
+  epochs: 10
+  batch_size: 32
+  lr: 0.0003
+
+evaluation:
+  # TODO: map Metric1/Metric2 used by experiment-matrix.csv to actual metric implementations
+  metrics:
+    - "Metric1"
+    - "Metric2"
+

@@ -1,0 +1,98 @@
+{
+  "451": {
+    "Deterministic dispatch (no scenarios)": {
+      "objective": 16086642.307166083,
+      "reliability": 0.9028284671532847,
+      "violation_rate": 0.09717153284671533,
+      "vulnerability": 0.4295312314839021
+    },
+    "Full closed-loop method": {
+      "objective": 15984784.197586603,
+      "reliability": 0.9032846715328468,
+      "violation_rate": 0.09671532846715329,
+      "vulnerability": 0.4297631382149982
+    },
+    "Point forecast only (no UQ)": {
+      "objective": 16086639.443457944,
+      "reliability": 0.9028284671532847,
+      "violation_rate": 0.09717153284671533,
+      "vulnerability": 0.4295311813346252
+    },
+    "w/o implementation feedback (open loop)": {
+      "objective": 16029987.963409532,
+      "reliability": 0.9028284671532847,
+      "violation_rate": 0.09717153284671533,
+      "vulnerability": 0.4285380092176198
+    },
+    "w/o rolling calibration (static params)": {
+      "objective": 15969860.521636318,
+      "reliability": 0.9032846715328468,
+      "violation_rate": 0.09671532846715329,
+      "vulnerability": 0.4295007370260704
+    }
+  },
+  "597": {
+    "Deterministic dispatch (no scenarios)": {
+      "objective": 11518550.947889935,
+      "reliability": 1.0,
+      "violation_rate": 0.0,
+      "vulnerability": 0.0
+    },
+    "Full closed-loop method": {
+      "objective": 11518327.143037,
+      "reliability": 1.0,
+      "violation_rate": 0.0,
+      "vulnerability": 0.0
+    },
+    "Point forecast only (no UQ)": {
+      "objective": 11518544.337913198,
+      "reliability": 1.0,
+      "violation_rate": 0.0,
+      "vulnerability": 0.0
+    },
+    "w/o implementation feedback (open loop)": {
+      "objective": 11518286.241716284,
+      "reliability": 1.0,
+      "violation_rate": 0.0,
+      "vulnerability": 0.0
+    },
+    "w/o rolling calibration (static params)": {
+      "objective": 11520936.139310785,
+      "reliability": 1.0,
+      "violation_rate": 0.0,
+      "vulnerability": 0.0
+    }
+  },
+  "601": {
+    "Deterministic dispatch (no scenarios)": {
+      "objective": 15420.207141639845,
+      "reliability": 1.0,
+      "violation_rate": 0.0,
+      "vulnerability": 0.0
+    },
+    "Full closed-loop method": {
+      "objective": 15450.525541305624,
+      "reliability": 1.0,
+      "violation_rate": 0.0,
+      "vulnerability": 0.0
+    },
+    "Point forecast only (no UQ)": {
+      "objective": 15420.208561935216,
+      "reliability": 1.0,
+      "violation_rate": 0.0,
+      "vulnerability": 0.0
+    },
+    "w/o implementation feedback (open loop)": {
+      "objective": 15448.581746006323,
+      "reliability": 1.0,
+      "violation_rate": 0.0,
+      "vulnerability": 0.0
+    },
+    "w/o rolling calibration (static params)": {
+      "objective": 15470.280721214824,
+      "reliability": 1.0,
+      "violation_rate": 0.0,
+      "vulnerability": 0.0
+    }
+  }
+}

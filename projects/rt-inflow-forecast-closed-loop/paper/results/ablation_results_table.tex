@@ -1,0 +1,14 @@
+{\setlength{\tabcolsep}{2pt}\scriptsize
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{p{0.34\columnwidth}ccp{0.24\columnwidth}}
+\toprule
+Method & Viol. & Obj. ($\times10^6$) & Notes \\
+\midrule
+Full closed-loop method & 0.032$\pm$0.056 & 9.17$\pm$8.24 & reference \\
+w/o rolling calibration (static params) & 0.032$\pm$0.056 & 9.17$\pm$8.23 & ablate COMP-2 \\
+w/o implementation feedback (open loop) & 0.032$\pm$0.056 & 9.19$\pm$8.26 & ablate COMP-6 \\
+Deterministic dispatch (no scenarios) & 0.032$\pm$0.056 & 9.21$\pm$8.28 & ablate uncertainty propagation \\
+Point forecast only (no UQ) & 0.032$\pm$0.056 & 9.21$\pm$8.28 & remove probabilistic forecasts \\
+\bottomrule
+\end{tabular}}
+}

@@ -1,0 +1,13 @@
+{\setlength{\tabcolsep}{2pt}\scriptsize
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{p{0.34\columnwidth}ccp{0.24\columnwidth}}
+\toprule
+Method & Viol. & Obj. ($\times10^6$) & Notes \\
+\midrule
+Static det. MPC (baseline) & 0.032$\pm$0.056 & 9.20$\pm$8.28 & open-loop + static params \\
+Rolling det. MPC & 0.032$\pm$0.056 & 9.21$\pm$8.28 & isolates rolling calibration \\
+Rolling scenario MPC & 0.032$\pm$0.056 & 9.19$\pm$8.26 & isolates uncertainty-aware dispatch \\
+Closed-loop scenario MPC (ours) & 0.032$\pm$0.056 & 9.17$\pm$8.24 & closed-loop coupling \\
+\bottomrule
+\end{tabular}}
+}

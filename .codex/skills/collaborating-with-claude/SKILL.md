@@ -17,6 +17,12 @@ or as a generic code collaborator in fallback mode.
 This skill provides a lightweight bridge script (`scripts/claude_bridge.py`)
 that returns structured JSON and supports multi-turn sessions via `SESSION_ID`.
 
+> **Shared rules**: This skill inherits all shared rules from
+> `../../_shared/collaboration-base.md` (core rules, candidates-only
+> constraint, fallback code-collaboration mode, safety guardrails, and
+> collaboration state capsule format).  Only Claude-specific additions
+> are listed below.
+
 ## When to Use
 - contribution-map initial draft needs claim-level stress testing.
 - evidence-matrix needs sufficiency audit (does evidence match claim strength?).
@@ -30,27 +36,17 @@ that returns structured JSON and supports multi-turn sessions via `SESSION_ID`.
 - Generating `ref.bib` entries or verified citations.
 - Tasks requiring breadth exploration rather than depth analysis.
 
-## Core rules
-- Claude is a collaborator; you own the final result and must verify changes locally.
-- Do not invoke `claude` directly; always use the bridge script (`scripts/claude_bridge.py`) so output/session handling stays consistent.
-- Prefer file/line references over pasting snippets. Run the bridge with `--cd` set to the repo root (it sets the `claude` process working directory); use `--add-dir` when Claude needs access to additional directories.
-- For code changes, request **Unified Diff Patch ONLY** and forbid direct file modification.
+## Claude-Specific Rules
 - Always run the bridge script with `--help` first if you are unsure of parameters.
-- Always capture `SESSION_ID` and reuse it for follow-ups to keep the collaboration conversation-aware.
-- For automation, prefer `--SESSION_ID` (resume). Session selectors are mutually exclusive: choose one of `--SESSION_ID`, `--continue`, or `--session-id`.
-- Keep a short **Collaboration State Capsule** updated while this skill is active.
-- Default timeout: when invoking via the Codex command runner, set `timeout_ms` to **600000 (10 minutes)** unless a shorter/longer timeout is explicitly required.
-- Ensure Claude Code is logged in before running headless commands (run `claude` and `/login` once if needed).
+- Prefer file/line references; run the bridge with `--cd` set to the repo root.
+  Use `--add-dir` when Claude needs access to additional directories.
+- For automation, prefer `--SESSION_ID` (resume). Session selectors are mutually
+  exclusive: choose one of `--SESSION_ID`, `--continue`, or `--session-id`.
+- Ensure Claude Code is logged in before running headless commands (run `claude`
+  and `/login` once if needed).
 - Streamed JSON requires `--verbose`; the bridge enables this automatically.
 
-## Candidates-Only Hard Constraint (Paper Mode)
-All paper-mode outputs are **unverified candidates**, not citable facts.
-They must pass through the downstream citation verification pipeline
-(arxiv_registry.py → source_ranker.py → citation_policy.py) before
-entering ref.bib or artifact final fields. See template-level constraints
-in `assets/prompt-template.md` for output format rules.
-
-## Model selection
+## Model Selection
 
 Claude Code supports model aliases, so you can use `--model sonnet` / `--model opus` instead of hard-coding versioned model IDs.
 
@@ -59,9 +55,9 @@ Claude Code supports model aliases, so you can use `--model sonnet` / `--model o
 - For `claim-stress-test` and `route-review-vs-empirical` templates, prefer `opus`.
 - For `evidence-sufficiency-audit`, `sonnet` is sufficient.
 
-## Quick start (shell-safe)
+## Quick Start (shell-safe)
 
-⚠️ If your prompt contains Markdown backticks (`` `like/this` ``), do **not** pass it directly via `--PROMPT "..."` (your shell may treat backticks as command substitution). Use a heredoc instead; see `references/shell-quoting.md`.
+If your prompt contains Markdown backticks, use a heredoc; see `references/shell-quoting.md`.
 
 ```bash
 PROMPT="$(cat <<'EOF'
@@ -74,7 +70,7 @@ python3 .codex/skills/collaborating-with-claude/scripts/claude_bridge.py --cd ".
 
 **Output:** JSON with `success`, `SESSION_ID`, `agent_messages`, and optional `error` / `all_messages`.
 
-## Multi-turn sessions
+## Multi-turn Sessions
 
 ```bash
 # Start a session
@@ -92,7 +88,7 @@ EOF
 python3 .codex/skills/collaborating-with-claude/scripts/claude_bridge.py --cd "." --SESSION_ID "<SESSION_ID>" --PROMPT "$PROMPT" --output-format stream-json
 ```
 
-## Prompting patterns (paper mode)
+## Prompting Patterns (Paper Mode)
 
 Use `assets/prompt-template.md` as a starter when crafting `--PROMPT`.
 Paper-mode templates (top of the file):
@@ -102,60 +98,12 @@ Paper-mode templates (top of the file):
 
 Each template specifies its input sources, output artifact mappings, and constraints.
 
-### Fallback: Code collaboration mode
-
-For generic code tasks, use the templates in the `## Fallback: Code Collaboration Mode` section of `assets/prompt-template.md`:
-
-1. **Ask Claude to open files itself** — provide entry file(s), line numbers, objective, constraints, and output format (diff vs analysis). Avoid pasting large code blocks.
-2. **Enforce safe output for code changes** — append: `OUTPUT: Unified Diff Patch ONLY. Strictly prohibit any actual modifications.`
-3. **Use Claude for what it's good at** — alternative solution paths, edge cases, UI/UX feedback, patch review.
-
 ## Verification
-- Smoke-test the bridge: `python3 .codex/skills/collaborating-with-claude/scripts/claude_bridge.py --help`.
-- If you need a session: run one prompt with `--output-format stream-json` and confirm the JSON contains `success: true` and a `SESSION_ID`.
-- Note: `--output-format text` won't include a newly generated session id; use `stream-json`/`json` to capture it. If you resume with `--SESSION_ID` in `text` mode, the bridge echoes that `SESSION_ID` in its JSON output.
-
-## Safety & guardrails
-- Never paste secrets (private keys, API keys, seed phrases) into prompts.
-- For code changes, request **Unified Diff Patch ONLY** and apply changes yourself.
-- Treat Claude output as suggestions; verify locally (tests, lint, build) before merging.
-
-## Unavailability
-Collaboration hooks are non-blocking. If Claude Code CLI is unreachable,
-the orchestrator decides the fallback (skip, self-execute, or ask user).
-Candidates-Only constraint applies regardless of who executes the template.
-
-## Collaboration State Capsule
-
-### Paper Mode Capsule (default)
-Keep this block updated near the end of your reply while collaborating:
-
-```text
-[Paper Collaboration Capsule]
-Topic:
-Current_Mode_Hypothesis: review | empirical | undecided
-Current_Artifact: topic-brief | contribution-map | evidence-matrix | outline-contract | router-decision
-Artifact_Version: draft-N
-Open_Gaps:
-Rejected_Framings:
-Evidence_Risks:
-Next_Validation_Step:
-SESSION_ID:
-```
-
-### Legacy Capsule (Code Mode)
-For generic code collaboration, use the legacy capsule:
-
-```text
-[Claude Collaboration Capsule]
-Goal:
-Claude SESSION_ID:
-Files/lines handed off:
-Last ask:
-Claude summary:
-Next ask:
-```
+- Cross-check both collaborators: use the `check-collaborators` skill
+- Smoke-test the bridge: `python3 .codex/skills/collaborating-with-claude/scripts/claude_bridge.py --help`
+- For session testing: run one prompt with `--output-format stream-json` and confirm JSON contains `success: true` and a `SESSION_ID`.
 
 ## References
+- `../../_shared/collaboration-base.md` (shared rules)
 - `assets/prompt-template.md` (prompt patterns)
 - `references/shell-quoting.md` (shell quoting/backticks)

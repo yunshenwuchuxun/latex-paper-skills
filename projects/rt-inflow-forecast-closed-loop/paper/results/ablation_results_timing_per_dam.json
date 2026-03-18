@@ -1,0 +1,83 @@
+{
+  "451": {
+    "Deterministic dispatch (no scenarios)": {
+      "calib_s": 3.275866788392793e-05,
+      "dispatch_s": 0.004308429060219028,
+      "total_s": 0.004834875410584739
+    },
+    "Full closed-loop method": {
+      "calib_s": 3.7519708029019086e-05,
+      "dispatch_s": 0.033200856523722636,
+      "total_s": 0.03380991327554711
+    },
+    "Point forecast only (no UQ)": {
+      "calib_s": 3.700994525632805e-05,
+      "dispatch_s": 0.034185458804744266,
+      "total_s": 0.034790689096714525
+    },
+    "w/o implementation feedback (open loop)": {
+      "calib_s": 3.689858576555096e-05,
+      "dispatch_s": 0.03294132842153312,
+      "total_s": 0.03354920063868589
+    },
+    "w/o rolling calibration (static params)": {
+      "calib_s": 6.432937955366509e-07,
+      "dispatch_s": 0.03335450136861325,
+      "total_s": 0.03392462185219006
+    }
+  },
+  "597": {
+    "Deterministic dispatch (no scenarios)": {
+      "calib_s": 2.9531523722516607e-05,
+      "dispatch_s": 0.0013928121806570752,
+      "total_s": 0.0018766876368614502
+    },
+    "Full closed-loop method": {
+      "calib_s": 3.420296532844107e-05,
+      "dispatch_s": 0.008496949817518258,
+      "total_s": 0.009009817198905104
+    },
+    "Point forecast only (no UQ)": {
+      "calib_s": 3.4430018247923586e-05,
+      "dispatch_s": 0.010452736906934426,
+      "total_s": 0.010979404014598553
+    },
+    "w/o implementation feedback (open loop)": {
+      "calib_s": 3.369749087590441e-05,
+      "dispatch_s": 0.008448033804744558,
+      "total_s": 0.008963180246350415
+    },
+    "w/o rolling calibration (static params)": {
+      "calib_s": 4.3955291972469544e-07,
+      "dispatch_s": 0.00896999986313866,
+      "total_s": 0.009447940602189809
+    }
+  },
+  "601": {
+    "Deterministic dispatch (no scenarios)": {
+      "calib_s": 3.085474452706152e-05,
+      "dispatch_s": 0.002243174361315311,
+      "total_s": 0.00274604032846688
+    },
+    "Full closed-loop method": {
+      "calib_s": 3.644128649638358e-05,
+      "dispatch_s": 0.017090497673357016,
+      "total_s": 0.017671250912409286
+    },
+    "Point forecast only (no UQ)": {
+      "calib_s": 3.4626140508713636e-05,
+      "dispatch_s": 0.017020887043795938,
+      "total_s": 0.01756819156021814
+    },
+    "w/o implementation feedback (open loop)": {
+      "calib_s": 3.652039233652311e-05,
+      "dispatch_s": 0.016946785401460152,
+      "total_s": 0.01752630310218973
+    },
+    "w/o rolling calibration (static params)": {
+      "calib_s": 5.367244526777818e-07,
+      "dispatch_s": 0.01737388471715274,
+      "total_s": 0.01789364087591437
+    }
+  }
+}

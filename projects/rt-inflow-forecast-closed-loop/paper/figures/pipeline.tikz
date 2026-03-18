@@ -1,0 +1,24 @@
+\begin{tikzpicture}[
+  font=\small,
+  block/.style={draw, rounded corners=2pt, align=center, text width=18mm, inner sep=2pt, minimum height=9mm, line width=0.7pt, fill=gray!6, draw=black!60},
+  stage/.style={block, fill=blue!7, draw=blue!55!black},
+  novel/.style={block, fill=orange!12, draw=orange!70!black, line width=1.0pt},
+  arrow/.style={->,>=latex, line width=0.9pt},
+]
+
+\node[block] (snap) {COMP-1\\State\\snapshot};
+\node[stage, right=2mm of snap] (cal) {COMP-2\\Rolling\\calibration};
+\node[stage, right=2mm of cal] (fcst) {COMP-3\\Prob.\\forecast};
+\node[stage, right=2mm of fcst] (scen) {COMP-4\\Scenario\\generator};
+\node[stage, right=2mm of scen] (opt) {COMP-5\\Scenario\\MPC};
+\node[novel, right=2mm of opt] (fb) {COMP-6\\Feedback\\update};
+
+\draw[arrow] (snap) -- (cal);
+\draw[arrow] (cal) -- (fcst);
+\draw[arrow] (fcst) -- (scen);
+\draw[arrow] (scen) -- (opt);
+\draw[arrow] (opt) -- node[above,align=center,font=\scriptsize]{implement $r_k$,\\observe outcomes} (fb);
+
+\draw[arrow] (fb.south) |- ++(0,-6mm) -| node[below,align=center,font=\scriptsize]{next cycle: updated state\\and uncertainty} (snap.south);
+
+\end{tikzpicture}

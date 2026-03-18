@@ -10,13 +10,9 @@ import sys
 from pathlib import Path
 
 
-def review_scripts_dir() -> Path:
-    return Path(__file__).resolve().parents[2] / "arxiv-paper-writer" / "scripts"
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "_shared"))
 
-
-sys.path.insert(0, str(review_scripts_dir()))
-
-from paper_utils import ensure_paper_config, now_timestamp, slugify, validate_slug, validate_timestamp  # type: ignore  # noqa: E402
+from paper_utils import ensure_paper_config, now_timestamp, slugify, validate_slug, validate_timestamp  # noqa: E402
 
 
 def run(cmd: list[str]) -> int:
@@ -35,10 +31,9 @@ def empirical_template_dir() -> Path:
     return empirical_skill_root() / "assets" / "template"
 
 
-def scaffold_project(folder_name: str, out_dir: Path) -> Path:
-    dest_dir = out_dir / folder_name
-    if dest_dir.exists():
-        raise SystemExit(f"Destination already exists: {dest_dir}")
+def _scaffold_paper_dir(paper_dir: Path) -> None:
+    if paper_dir.exists():
+        raise SystemExit(f"Destination already exists: {paper_dir}")
 
     base_template = review_template_dir()
     if not base_template.exists():
@@ -62,24 +57,76 @@ def scaffold_project(folder_name: str, out_dir: Path) -> Path:
         "*.toc",
         "main.template.pdf",
     )
-    shutil.copytree(base_template, dest_dir, ignore=ignore)
+    shutil.copytree(base_template, paper_dir, ignore=ignore)
 
     for file_path in empirical_template_dir().glob("*"):
         if file_path.is_file():
-            shutil.copy2(file_path, dest_dir / file_path.name)
+            shutil.copy2(file_path, paper_dir / file_path.name)
 
-    main_template = dest_dir / "main.template.tex"
-    bib_template = dest_dir / "references.template.bib"
-    main_tex = dest_dir / "main.tex"
-    ref_bib = dest_dir / "ref.bib"
+    main_template = paper_dir / "main.template.tex"
+    bib_template = paper_dir / "references.template.bib"
+    main_tex = paper_dir / "main.tex"
+    ref_bib = paper_dir / "ref.bib"
 
     if main_template.exists():
         main_template.rename(main_tex)
     if bib_template.exists():
         bib_template.rename(ref_bib)
 
-    print(f"Created empirical paper scaffold at: {dest_dir}")
-    return dest_dir
+    print(f"Created empirical paper scaffold at: {paper_dir}")
+
+
+def _read_asset_text(name: str) -> str:
+    path = empirical_skill_root() / "assets" / name
+    if not path.exists():
+        raise SystemExit(f"Missing asset template: {path}")
+    return path.read_text(encoding="utf-8").lstrip("\ufeff")
+
+
+def scaffold_experiments_dir(experiments_dir: Path, *, project_name: str) -> None:
+    if experiments_dir.exists():
+        raise SystemExit(f"Destination already exists: {experiments_dir}")
+    experiments_dir.mkdir(parents=True, exist_ok=False)
+
+    templates: list[tuple[str, str]] = [
+        ("experiments-template.README.md", "README.md"),
+        ("experiments-template.requirements.txt", "requirements.txt"),
+        ("experiments-template.configs.default.yaml", "configs/default.yaml"),
+        ("experiments-template.run_all.py", "run_all.py"),
+        ("experiments-template.train.py", "train.py"),
+        ("experiments-template.evaluate.py", "evaluate.py"),
+        ("experiments-template.utils.config.py", "utils/config.py"),
+        ("experiments-template.utils.io.py", "utils/io.py"),
+        ("experiments-template.utils.paths.py", "utils/paths.py"),
+        ("experiments-template.models.model_stub.py", "models/model_stub.py"),
+        ("experiments-template.data.dataset_stub.py", "data/dataset_stub.py"),
+        ("experiments-template.metrics.metrics_stub.py", "metrics/metrics_stub.py"),
+    ]
+
+    for src_name, rel_dest in templates:
+        content = _read_asset_text(src_name).replace("<PROJECT_NAME>", project_name)
+        dest_path = experiments_dir / rel_dest
+        dest_path.parent.mkdir(parents=True, exist_ok=True)
+        dest_path.write_text(content, encoding="utf-8")
+
+    print(f"Created experiment code scaffold at: {experiments_dir}")
+
+
+def scaffold_project(folder_name: str, out_dir: Path, *, layout: str) -> tuple[Path, Path]:
+    root_dir = out_dir / folder_name
+    if layout == "flat":
+        _scaffold_paper_dir(root_dir)
+        return root_dir, root_dir
+
+    if root_dir.exists():
+        raise SystemExit(f"Destination already exists: {root_dir}")
+
+    paper_dir = root_dir / "paper"
+    experiments_dir = root_dir / "experiments"
+    paper_dir.parent.mkdir(parents=True, exist_ok=True)
+    _scaffold_paper_dir(paper_dir)
+    scaffold_experiments_dir(experiments_dir, project_name=folder_name)
+    return root_dir, paper_dir
 
 
 def infer_latest_plan_timestamp_and_slug(plan_dir: Path) -> tuple[str, str] | None:
@@ -114,6 +161,7 @@ def main() -> int:
     parser.add_argument("--complexity", default="medium", choices=["simple", "medium", "complex"])
     parser.add_argument("--timestamp", help="Timestamp override (YYYY-MM-DD_HH-mm-ss).")
     parser.add_argument("--slug", help="Optional slug override for filenames.")
+    parser.add_argument("--layout", default="flat", choices=["flat", "project"])
     parser.add_argument("--check-latex", action="store_true")
     parser.add_argument("--with-literature-notes", action="store_true")
     parser.add_argument("--target-venue", default="")
@@ -132,15 +180,21 @@ def main() -> int:
     out_dir = Path(args.out).resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
     folder_name = args.name.strip() if args.name else slug
-    project_dir = out_dir / folder_name
+    root_dir = out_dir / folder_name
+    paper_dir = root_dir if args.layout == "flat" else root_dir / "paper"
+    if args.stage == "issues" and args.layout == "flat":
+        # Convenience auto-detection: if the root contains a "paper/" subdir and no main.tex at root,
+        # treat it as a project-layout bootstrap.
+        if (root_dir / "paper").exists() and not (root_dir / "main.tex").exists():
+            paper_dir = root_dir / "paper"
 
     create_script = empirical_skill_root() / "scripts" / "create_empirical_plan.py"
 
     if args.stage in {"kickoff", "outline"}:
-        scaffold_project(folder_name, out_dir)
+        _, paper_dir = scaffold_project(folder_name, out_dir, layout=args.layout)
         workflow_mode = "outline-only" if args.stage == "outline" else "standard"
         ensure_paper_config(
-            project_dir=project_dir,
+            project_dir=paper_dir,
             topic=topic,
             workflow_mode=workflow_mode,
             target_venue=args.target_venue,
@@ -163,7 +217,7 @@ def main() -> int:
             "--slug",
             slug,
             "--output-dir",
-            str(project_dir),
+            str(paper_dir),
             "--target-venue",
             args.target_venue,
             "--style-mode",
@@ -178,18 +232,18 @@ def main() -> int:
         return run(cmd)
 
     if args.stage == "issues":
-        if not project_dir.exists():
-            print(f"error: project directory not found: {project_dir}", file=sys.stderr)
+        if not paper_dir.exists():
+            print(f"error: project directory not found: {paper_dir}", file=sys.stderr)
             return 1
         if not args.timestamp:
-            inferred = infer_latest_plan_timestamp_and_slug(project_dir / "plan")
+            inferred = infer_latest_plan_timestamp_and_slug(paper_dir / "plan")
             if inferred is None:
                 print("error: could not infer timestamp/slug from latest plan", file=sys.stderr)
                 return 1
             timestamp, slug = inferred
 
         ensure_paper_config(
-            project_dir=project_dir,
+            project_dir=paper_dir,
             topic=topic,
             workflow_mode="standard",
             target_venue=args.target_venue,
@@ -210,7 +264,7 @@ def main() -> int:
             "--slug",
             slug,
             "--output-dir",
-            str(project_dir),
+            str(paper_dir),
             "--target-venue",
             args.target_venue,
             "--style-mode",
