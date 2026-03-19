@@ -25,7 +25,9 @@
 
 ## 工作原理
 
-![工作流水线总览](picture/pipeline-zh.svg)
+<p align="center">
+  <img src="picture/pipeline-zh.svg" alt="工作流水线总览" />
+</p>
 
 **可选的多智能体协作：**
 
@@ -47,6 +49,7 @@
 | **arxiv-paper-writer** | 综述论文执行器。门禁 IEEEtran LaTeX 工作流，含 issues CSV 合同、按 issue 写作循环、引用验证和 QA。 |
 | **empirical-paper-writer** | 实验论文执行器。在综述工作流基础上增加实验矩阵、结果状态追踪（`planned`/`placeholder`/`verified`）和证据-声明映射。 |
 | **latex-rhythm-refiner** | 文本润色器。变化句段节奏、去除填充词，严格保持所有 `\cite{}` 位置不变。 |
+| **results-backfill** | 将真实实验结果回填到现有草稿。替换占位符、将假设升级为事实性表述、生成结果图。 |
 
 ### 协作层
 
@@ -60,7 +63,9 @@
 
 两个写作技能都执行严格的门禁：
 
-![门禁工作流](picture/gated-workflow-zh.svg)
+<p align="center">
+  <img src="picture/gated-workflow-zh.svg" alt="门禁工作流" />
+</p>
 
 ## 快速开始
 
@@ -126,7 +131,7 @@ Assume I will run the jobs myself and then use results-backfill after real CSVs 
 
 ## 共享脚本引擎
 
-`arxiv-paper-writer/scripts/` 包含两个写作技能共用的核心脚本：
+`.codex/skills/arxiv-paper-writer/scripts/` 包含两个写作技能共用的核心脚本：
 
 | 脚本 | 用途 |
 |------|------|
@@ -136,7 +141,11 @@ Assume I will run the jobs myself and then use results-backfill after real CSVs 
 | `source_ranker.py` | 来源质量评分 |
 | `style_profile.py` | 目标期刊/会议风格检查 |
 | `issue_workflow.py` | Issue 执行辅助 |
-| `paper_utils.py` | 共享工具函数（slugify、时间戳、cite 统计） |
+| `bootstrap_ieee_review_paper.py` | 搭建 IEEEtran 项目骨架 |
+| `create_paper_plan.py` | 从大纲生成论文计划 |
+| `validate_paper_issues.py` | 校验 issues CSV 完整性 |
+
+跨技能共享工具（`paper_utils.py`、`source_policy_utils.py`）位于 `.codex/skills/_shared/`。
 
 ## 不可违反的规则
 
@@ -168,16 +177,19 @@ latex-paper-skills/
 │   ├── paper-from-zero/              # 路由层：选题 → 写作技能
 │   ├── arxiv-paper-writer/           # 综述论文执行器 + 共享脚本
 │   ├── empirical-paper-writer/       # 实验论文执行器
+│   ├── results-backfill/             # 将真实结果回填到草稿
 │   ├── latex-rhythm-refiner/         # 文本润色器
 │   ├── collaborating-with-claude/    # Claude Code 桥接
 │   ├── collaborating-with-gemini/    # Gemini CLI 桥接
-│   └── check-collaborators/          # CLI 健康检查
+│   ├── check-collaborators/          # CLI 健康检查
+│   ├── _shared/                      # 跨技能共享工具
+│   └── _orchestration/               # 工作流编排配置
 ├── projects/
 │   ├── rt-inflow-forecast-closed-loop/  # 实证论文 showcase
 │   └── peft-survey-2022-2026/           # 综述论文 showcase
-├── AGENTS.md                         # 仓库级工作流约束
+├── picture/                          # README 用 SVG 图表
 ├── ARCHITECTURE.md                   # 详细架构分析
-├── agent-skills-standard.md          # 技能包规范标准
+├── BEGINNER_WORKFLOW.zh-CN.md        # 工作流入门指南
 ├── README.md
 └── README.zh-CN.md
 ```
@@ -186,6 +198,18 @@ latex-paper-skills/
 
 - 工作流受 [appautomaton/agent-designer](https://github.com/appautomaton/agent-designer) 启发（issue-driven development）
 - 使用 [IEEEtran](https://ctan.org/pkg/ieeetran) LaTeX 文档类
+
+## Star History
+
+<p align="center">
+  <a href="https://www.star-history.com/#yunshenwuchuxun/latex-paper-skills&Date">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=yunshenwuchuxun/latex-paper-skills&type=Date&theme=dark" />
+      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=yunshenwuchuxun/latex-paper-skills&type=Date" />
+      <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=yunshenwuchuxun/latex-paper-skills&type=Date" />
+    </picture>
+  </a>
+</p>
 
 ## License
 

@@ -26,7 +26,9 @@ The showcases in this repo were developed and tested with **GPT-5.2 xhigh**. Usi
 
 ## How It Works
 
-![Pipeline Overview](picture/pipeline-en.svg)
+<p align="center">
+  <img src="picture/pipeline-en.svg" alt="Pipeline Overview" />
+</p>
 
 **Optional multi-agent collaboration:**
 
@@ -48,6 +50,7 @@ All skills live under `.codex/skills/`. Each has a `SKILL.md` (the executable sp
 | **arxiv-paper-writer** | Review/survey executor. Gated IEEEtran LaTeX workflow with issues CSV contract, per-issue writing loop, citation verification, and QA. |
 | **empirical-paper-writer** | Experimental paper executor. Extends the review workflow with experiment matrices, result status tracking (`planned`/`placeholder`/`verified`), and evidence-claim mapping. |
 | **latex-rhythm-refiner** | Prose polisher. Varies sentence/paragraph rhythm, removes filler, strictly preserves all `\cite{}` positions. |
+| **results-backfill** | Back-fills real experiment results into an existing draft. Resolves placeholders, upgrades hypotheses to factual claims, generates figures. |
 
 ### Collaboration Layer
 
@@ -61,7 +64,9 @@ All skills live under `.codex/skills/`. Each has a `SKILL.md` (the executable sp
 
 Both writer skills enforce strict gates:
 
-![Gated Workflow](picture/gated-workflow-en.svg)
+<p align="center">
+  <img src="picture/gated-workflow-en.svg" alt="Gated Workflow" />
+</p>
 
 ## Quick Start
 
@@ -127,7 +132,7 @@ Notes:
 
 ## Shared Script Engine
 
-`arxiv-paper-writer/scripts/` contains the core tooling shared by both writers:
+`.codex/skills/arxiv-paper-writer/scripts/` contains the core tooling shared by both writers:
 
 | Script | Purpose |
 |--------|---------|
@@ -137,7 +142,11 @@ Notes:
 | `source_ranker.py` | Source quality scoring |
 | `style_profile.py` | Target venue style checking |
 | `issue_workflow.py` | Issue execution helpers |
-| `paper_utils.py` | Shared utilities (slugify, timestamp, cite stats) |
+| `bootstrap_ieee_review_paper.py` | Scaffold IEEEtran project skeleton |
+| `create_paper_plan.py` | Generate paper plan from outline |
+| `validate_paper_issues.py` | Validate issues CSV integrity |
+
+Shared utilities (`paper_utils.py`, `source_policy_utils.py`) live in `.codex/skills/_shared/`.
 
 ## Non-Negotiable Rules
 
@@ -169,16 +178,19 @@ latex-paper-skills/
 │   ├── paper-from-zero/              # Router: topic → writer skill
 │   ├── arxiv-paper-writer/           # Review paper executor + shared scripts
 │   ├── empirical-paper-writer/       # Empirical paper executor
+│   ├── results-backfill/             # Back-fill real results into draft
 │   ├── latex-rhythm-refiner/         # Prose polisher
 │   ├── collaborating-with-claude/    # Claude Code bridge
 │   ├── collaborating-with-gemini/    # Gemini CLI bridge
-│   └── check-collaborators/          # CLI health check
+│   ├── check-collaborators/          # CLI health check
+│   ├── _shared/                      # Shared utilities across skills
+│   └── _orchestration/               # Workflow orchestration config
 ├── projects/
 │   ├── rt-inflow-forecast-closed-loop/  # Empirical showcase
 │   └── peft-survey-2022-2026/           # Review showcase
-├── AGENTS.md                         # Repo-level workflow constraints
+├── picture/                          # SVG diagrams for README
 ├── ARCHITECTURE.md                   # Detailed architecture analysis
-├── agent-skills-standard.md          # Skill packaging standard
+├── BEGINNER_WORKFLOW.zh-CN.md        # Beginner workflow guide (Chinese)
 ├── README.md
 └── README.zh-CN.md
 ```
@@ -187,6 +199,18 @@ latex-paper-skills/
 
 - Workflow inspired by [appautomaton/agent-designer](https://github.com/appautomaton/agent-designer) (issue-driven development)
 - Uses [IEEEtran](https://ctan.org/pkg/ieeetran) LaTeX class
+
+## Star History
+
+<p align="center">
+  <a href="https://www.star-history.com/#yunshenwuchuxun/latex-paper-skills&Date">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=yunshenwuchuxun/latex-paper-skills&type=Date&theme=dark" />
+      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=yunshenwuchuxun/latex-paper-skills&type=Date" />
+      <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=yunshenwuchuxun/latex-paper-skills&type=Date" />
+    </picture>
+  </a>
+</p>
 
 ## License
 
