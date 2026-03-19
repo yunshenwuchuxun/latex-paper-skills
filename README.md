@@ -20,28 +20,13 @@ In this public snapshot, the repo keeps:
 
 The repo intentionally does **not** keep bulky local datasets, machine-local settings, or cache databases. For the empirical showcase, the raw dataset used during development has been removed, but the retained code, result files, figures, and final PDF still show that the workflow completed a real data-and-experiment loop.
 
+## Status & Tested Models
+
+The showcases in this repo were developed and tested with **GPT-5.2 xhigh**. Using **GPT-5.4** is expected to yield better results. Test coverage is still limited — the workflow has significant untapped potential, though undiscovered bugs may exist.
+
 ## How It Works
 
-```
-              ┌─────────────────┐
-  topic ────▶ │ paper-from-zero │ ── literature search, innovation framing,
-              └────────┬────────┘    contribution map, evidence matrix
-                       │
-            ┌──────────┴──────────┐
-            ▼                     ▼
-  ┌───────────────────┐ ┌─────────────────────┐
-  │ arxiv-paper-writer│ │empirical-paper-writer│
-  │   (review/survey) │ │  (method/experiment) │
-  └─────────┬─────────┘ └──────────┬──────────┘
-            └──────────┬───────────┘
-                       ▼
-            ┌──────────────────┐
-            │latex-rhythm-     │ ── prose polish (preserves all \cite{})
-            │refiner           │
-            └────────┬─────────┘
-                     ▼
-                compile → PDF
-```
+![Pipeline Overview](picture/pipeline-en.svg)
 
 **Optional multi-agent collaboration:**
 
@@ -76,24 +61,7 @@ All skills live under `.codex/skills/`. Each has a `SKILL.md` (the executable sp
 
 Both writer skills enforce strict gates:
 
-```
-Gate 0    Scaffold project + draft plan (no prose in main.tex)
-  │
-  ▼
-User approval ── agent stops, user reviews plan
-  │
-  ▼
-Gate 1    Generate issues CSV (the execution contract)
-  │
-  ▼
-Phase 2   Per-issue loop: research → write → verify citations → DONE
-  │
-  ▼
-Phase 2.5 Rhythm refinement (latex-rhythm-refiner)
-  │
-  ▼
-Phase 3   QA gate: citation audit, source ranking, compile, warnings check
-```
+![Gated Workflow](picture/gated-workflow-en.svg)
 
 ## Quick Start
 
