@@ -203,11 +203,11 @@ latex-paper-skills/
 ## Star History
 
 <p align="center">
-  <a href="https://star-history.com/#yunshenwuchuxun/latex-paper-skills&renocrypt/latex-arxiv-SKILL&Date">
+  <a href="https://star-history.com/#yunshenwuchuxun/latex-paper-skills&Date">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/image?repos=yunshenwuchuxun/latex-paper-skills%2Crenocrypt/latex-arxiv-SKILL&type=Date&theme=dark" />
-      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/image?repos=yunshenwuchuxun/latex-paper-skills%2Crenocrypt/latex-arxiv-SKILL&type=Date" />
-      <img alt="Star History Chart" src="https://api.star-history.com/image?repos=yunshenwuchuxun/latex-paper-skills,renocrypt/latex-arxiv-SKILL&type=Date" />
+      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/image?repos=yunshenwuchuxun/latex-paper-skills&type=Date&theme=dark" />
+      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/image?repos=yunshenwuchuxun/latex-paper-skills&type=Date" />
+      <img alt="Star History Chart" src="https://api.star-history.com/image?repos=yunshenwuchuxun/latex-paper-skills&type=Date" />
     </picture>
   </a>
 </p>
