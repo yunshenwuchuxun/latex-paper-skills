@@ -40,7 +40,7 @@ The showcases in this repo were developed and tested with **GPT-5.2 xhigh**. Usi
 
 ## Skill Catalog
 
-All skills live under `.codex/skills/`. Each has a `SKILL.md` (the executable spec an agent follows), plus optional `scripts/`, `assets/`, and `references/`.
+The eight source skills live under `.codex/skills/`. Each has a `SKILL.md` (the executable spec an agent follows), plus optional `scripts/`, `assets/`, and `references/`. The installer exposes one `latex-paper-skills` entry containing all eight workflows and their resources.
 
 ### Core Pipeline
 
@@ -70,59 +70,79 @@ Both writer skills enforce strict gates:
 
 ## Quick Start
 
-### Install with npx
+### Install from npm (recommended)
 
-Install the complete suite for your agent from any paper project:
-
-```bash
-npx skills@latest add yunshenwuchuxun/latex-paper-skills --skill latex-paper-skills
-```
-
-For a non-interactive Codex installation in the current project:
+The package is published on [npm](https://www.npmjs.com/package/latex-paper-skills)
+as **`latex-paper-skills@0.1.0`**, owned by `yunshenwuchuxun`. With **Node.js
+22.20.0 or newer**, run this from your paper project:
 
 ```bash
-npx skills@latest add yunshenwuchuxun/latex-paper-skills --skill latex-paper-skills --agent codex --yes
+npx latex-paper-skills@latest --agent codex --copy --yes
 ```
 
-Use `--agent claude-code` for Claude Code, or add `--global` for a user-level
-installation. Then ask: `Use latex-paper-skills. My topic is: <your topic>`.
-This uses the existing [Skills CLI](https://github.com/vercel-labs/skills); no
-separate npm package or npm account is needed.
+This installs the complete bundle for Codex in the current project. Replace
+`--agent codex` with `--agent claude-code` to use Claude Code. Then ask:
+`Use latex-paper-skills. My topic is: <your topic>`.
+Users do not need an npm account.
+
+To pin the published version or inspect the package:
+
+```bash
+npx latex-paper-skills@0.1.0 --agent codex --copy --yes
+npx latex-paper-skills@latest --version
+npx latex-paper-skills@latest list
+```
+
+For an optional user-level installation, add `--global` explicitly:
+
+```bash
+npx latex-paper-skills@latest --agent codex --copy --yes --global
+```
+
+The npm command uses the [Skills CLI](https://github.com/vercel-labs/skills)
+with the complete bundle already included in the npm package. It preserves all
+shared dependencies and has no install lifecycle hooks.
+
+### Install from GitHub with the Skills CLI
+
+The existing GitHub installation remains available:
+
+```bash
+npx skills@latest add yunshenwuchuxun/latex-paper-skills --skill latex-paper-skills --agent codex --copy --yes
+```
 
 The installable directory is `skills/latex-paper-skills/`. It includes all eight
-workflows, `_shared`, scripts, and templates. Install this complete package:
+workflows, `_shared`, scripts, and templates. Install this complete package;
 installing individual source folders under `.codex/skills/` omits their shared
-dependencies. Source development continues under `.codex/skills/`; rebuild the
-package with `python3 scripts/build_distribution.py` after source changes.
-See [distribution and publishing](distribution/README.md) for registry details.
+dependencies.
 
-### Standalone npm package
-
-The repository is ready to publish as the npm package `latex-paper-skills`,
-including the complete skill and its installation command. After npm publication:
-
-```bash
-npx latex-paper-skills --agent codex --yes
-npx latex-paper-skills --agent claude-code --global
-```
-
-The installer requires Node.js 22.20.0+ and preserves all bundled dependencies.
-There are no install lifecycle hooks. Maintainers can build a release tarball
-with `npm pack --pack-destination dist`; see the
-[npm publishing steps](distribution/README.md#standalone-npm-package).
-
-### Marketplaces
+### Published packages and downloads
 
 - [ClawHub bundle](https://clawhub.ai/yunshenwuchuxun/plugins/latex-paper-skills):
-  `openclaw plugins install clawhub:@yunshenwuchuxun/latex-paper-skills@0.1.0`
+  version **0.1.0**, install with
+  `openclaw plugins install clawhub:@yunshenwuchuxun/latex-paper-skills@0.1.0`.
 - [LobeHub skill](https://lobehub.com/skills/yunshenwuchuxun-latex-paper-skills):
-  marketplace version `1.0.2`, containing the complete source bundle `0.1.0`.
+  open the listing for its installation or bundle download options. The
+  marketplace listing version is **1.0.2**; its complete source bundle is
+  **0.1.0**. These are separate version numbers.
+- [GitHub release v0.1.0](https://github.com/yunshenwuchuxun/latex-paper-skills/releases/tag/v0.1.0):
+  [download the complete skill ZIP](https://github.com/yunshenwuchuxun/latex-paper-skills/releases/download/v0.1.0/latex-paper-skills-0.1.0.zip).
+
+All these distributions contain the complete suite. See
+[distribution and publishing](distribution/README.md) for format and license
+details.
 
 ### Prerequisites
 
-- Python 3.10+
-- LaTeX environment (`pdflatex` + `bibtex`, or `latexmk`)
+- Node.js 22.20.0+ for the npm installer
+- Python 3.10+ for the paper workflow scripts
+- LaTeX environment (`pdflatex` + `bibtex`, or `latexmk`) to compile PDFs
 - AI agent runtime that reads `SKILL.md` (Codex CLI, Claude Code, etc.)
+
+Node.js runs the installer. The paper workflows still need their Python and
+LaTeX environments, along with any dependencies required by your experiments.
+Optional collaboration also requires installed, authenticated Gemini and Claude
+CLIs.
 
 ### Full pipeline (topic → PDF)
 
@@ -233,6 +253,11 @@ latex-paper-skills/
 │   ├── check-collaborators/          # CLI health check
 │   ├── _shared/                      # Shared utilities across skills
 │   └── _orchestration/               # Workflow orchestration config
+├── skills/latex-paper-skills/        # Complete installable bundle
+├── bin/latex-paper-skills.mjs        # npm installation command
+├── package.json                     # npm metadata and installer dependency
+├── distribution/                    # Publishing guide and package metadata
+├── scripts/build_distribution.py    # Rebuild and verify distribution artifacts
 ├── projects/
 │   ├── rt-inflow-forecast-closed-loop/  # Empirical showcase
 │   └── peft-survey-2022-2026/           # Review showcase
@@ -242,6 +267,37 @@ latex-paper-skills/
 ├── README.md
 └── README.zh-CN.md
 ```
+
+## Distribution for Maintainers
+
+Source development stays under `.codex/skills/`. Before a future release, choose
+a new version and update the version fields described in the
+[publishing guide](distribution/README.md#standalone-npm-package). From the
+repository root, rebuild and verify the complete distribution, then prepare the
+npm tarball:
+
+```bash
+npm ci
+npm run build:distribution
+npm run check:distribution
+npm test
+npm pack --pack-destination dist
+npm publish --dry-run --access public
+```
+
+Review the package contents, authenticate as the intended publisher, and publish:
+
+```bash
+npm login --auth-type=web
+npm whoami
+npm publish --access public
+```
+
+Complete npm's browser 2FA verification when prompted. Version `0.1.0` is already
+published; subsequent releases require a new version. Commit the rebuilt bundle
+with its source changes so GitHub installers receive the same contents. See the
+[distribution and publishing guide](distribution/README.md) for the GitHub
+Release, ClawHub, and LobeHub workflows.
 
 ## Related
 

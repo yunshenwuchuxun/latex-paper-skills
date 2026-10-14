@@ -5,6 +5,15 @@ all eight source workflows, shared Python helpers, and templates. Nested
 `SKILL.md` files become `workflow.md` to keep the installable package a single
 skill. Source files remain under `.codex/skills/`.
 
+Published releases:
+
+| Channel | Published version | Page |
+| --- | --- | --- |
+| npm | `0.1.0` | [latex-paper-skills](https://www.npmjs.com/package/latex-paper-skills) |
+| GitHub Release | `v0.1.0` | [Release and ZIP](https://github.com/yunshenwuchuxun/latex-paper-skills/releases/tag/v0.1.0) |
+| ClawHub bundle plugin | `0.1.0` | [LaTeX Paper Skills](https://clawhub.ai/yunshenwuchuxun/plugins/latex-paper-skills) |
+| LobeHub | Listing `1.0.2`, suite contents `0.1.0` | [LaTeX Paper Skills](https://lobehub.com/skills/yunshenwuchuxun-latex-paper-skills) |
+
 ## Build and verify
 
 ```bash
@@ -17,14 +26,14 @@ no showcase projects, datasets, local configuration, or Python cache files.
 Commit the generated `skills/latex-paper-skills/` directory along with any
 source changes so GitHub installers receive the same tested contents.
 
-## npx and skills.sh
+## GitHub installation and skills.sh
 
 ```bash
 npx skills@latest add yunshenwuchuxun/latex-paper-skills --skill latex-paper-skills
 ```
 
-No npm publication is required. The `skills` npm CLI installs the skill from
-GitHub. Per the [skills.sh FAQ](https://skills.sh/docs/faq), the leaderboard tracks
+The `skills` npm CLI installs the skill directly from GitHub. Per the
+[skills.sh FAQ](https://skills.sh/docs/faq), the leaderboard tracks
 real installations through CLI telemetry; there is no separate registry upload
 step. Listing/indexing timing is controlled by skills.sh.
 
@@ -142,37 +151,91 @@ was published as platform version `1.0.2`. See the
 
 ## Standalone npm package
 
-The repository also defines the public npm package `latex-paper-skills`, version
-`0.1.0`, with the `latex-paper-skills` executable. It ships the complete skill
+The public npm package [latex-paper-skills](https://www.npmjs.com/package/latex-paper-skills)
+**0.1.0 is published**, with the `latex-paper-skills` executable. It ships the complete skill
 directory and depends on the tested Skills CLI `1.7.2`; users need Node.js
 `22.20.0` or newer to install it. There are no install lifecycle hooks, and skill
 resources are already generated and included.
 
-Before publication, validate and pack from the repository root:
+Install or inspect the published version:
+
+```bash
+npx latex-paper-skills@0.1.0 --agent codex --copy --yes
+npx latex-paper-skills@0.1.0 --agent claude-code --global --copy --yes
+npx latex-paper-skills@0.1.0 --version
+npx latex-paper-skills@0.1.0 list
+```
+
+Without an agent flag, the Skills CLI handles agent discovery and selection.
+An installation targets the current project by default; `--global` explicitly
+selects a user-level installation. Codex project installations use
+`.agents/skills/latex-paper-skills/`. The wrapper forwards official installer
+options while always selecting the bundled `latex-paper-skills` entry.
+Installing this npm package requires Node.js and npm; Python, Git, and LaTeX are
+needed only for the maintainer build or the paper workflows that use them.
+
+### Maintainer npm release workflow
+
+Run these commands from a Git checkout of the repository root. The distribution
+builder requires Python 3.10+ and Git. Before another release, choose an unused
+version and coordinate the versions in `package.json`, `package-lock.json`,
+`VERSION` in `scripts/build_distribution.py`, and `metadata.version` in
+`distribution/latex-paper-skills.SKILL.md` before rebuilding. Bumping only the
+npm package version leaves the ZIP and ClawHub bundle at the builder's old
+version.
+Version `0.1.0` is already published; npm does not allow overwriting a published
+package version.
 
 ```bash
 npm ci
+npm run build:distribution
 npm run check:distribution
 npm test
 npm pack --pack-destination dist
 npm publish --dry-run --access public
 ```
 
-The publication command, when ready to release to npm, is:
+`npm run build:distribution` generates the complete skill directory, ZIP, and
+ClawHub bundle. Commit the generated skill directory with its source changes.
+Review the npm pack file list: the allowlist includes the executable, complete
+`skills/latex-paper-skills/` directory, license notices, both READMEs, and this
+guide. Example projects, credentials, and `dist/` are excluded. The package has
+no `prepack`, `prepare`, or install hooks; build and validation are explicit
+maintainer steps.
+
+Authenticate as the intended publisher, verify the username, then publish the
+reviewed package from the repository root:
 
 ```bash
+npm login --auth-type=web
+npm whoami
 npm publish --access public
 ```
 
-After npm publication, users can run:
+Complete the npm browser verification for each command when prompted, using the
+account's configured 2FA method, such as a passkey or security key. The normal
+web authentication flow uses a short-lived login session and requires no
+manually created access token or recovery code. See npm's
+[publishing requirements](https://docs.npmjs.com/requiring-2fa-for-package-publishing-and-settings-modification/)
+and [2FA configuration](https://docs.npmjs.com/configuring-two-factor-authentication/).
+
+After publishing, confirm the registry version:
 
 ```bash
-npx latex-paper-skills --agent codex --yes
-npx latex-paper-skills --agent claude-code --global
-npx latex-paper-skills list
+npm view latex-paper-skills version dist.tarball
 ```
 
-Without an agent flag, the Skills CLI handles agent discovery and selection.
-An installation targets the current project by default; `--global` explicitly
-selects a user-level installation. The wrapper forwards official installer
-options while always selecting the bundled `latex-paper-skills` entry.
+### GitHub Release archive
+
+For each new source version, commit and push the verified source and generated
+skill directory, then create a matching GitHub Release and attach the ZIP
+produced by `npm run build:distribution`:
+
+```bash
+gh release create "v<version>" "dist/latex-paper-skills-<version>.zip" \
+  --title "LaTeX Paper Skills <version>" --generate-notes
+```
+
+Replace `<version>` with the new suite version. The existing `v0.1.0` release
+already includes its ZIP; LobeHub's independently assigned listing version
+should not be used as the GitHub tag or npm package version.
