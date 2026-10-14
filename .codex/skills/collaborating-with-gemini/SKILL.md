@@ -18,7 +18,7 @@ This skill provides a lightweight bridge script that returns structured JSON
 and supports multi-turn sessions via `SESSION_ID`.
 
 > **Shared rules**: This skill inherits all shared rules from
-> `../../_shared/collaboration-base.md` (core rules, candidates-only
+> `../_shared/collaboration-base.md` (core rules, candidates-only
 > constraint, fallback code-collaboration mode, safety guardrails, and
 > collaboration state capsule format).  Only Gemini-specific additions
 > are listed below.
@@ -103,6 +103,6 @@ Each template specifies its input sources, output artifact mappings, and constra
 - Smoke-test the bridge: `python3 .codex/skills/collaborating-with-gemini/scripts/gemini_bridge.py --help`
 
 ## References
-- `../../_shared/collaboration-base.md` (shared rules)
+- `../_shared/collaboration-base.md` (shared rules)
 - `assets/prompt-template.md` (prompt patterns)
 - `references/shell-quoting.md` (shell quoting/backticks)

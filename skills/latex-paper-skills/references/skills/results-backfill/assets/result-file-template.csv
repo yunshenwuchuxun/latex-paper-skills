@@ -1,0 +1,4 @@
+method,dataset,metric_name,metric_value,seed,timestamp,notes
+Ours (full),Dataset1,Accuracy,0.0,42,2025-01-01T00:00:00,placeholder — replace with actual values
+Baseline-A,Dataset1,Accuracy,0.0,42,2025-01-01T00:00:00,placeholder
+Baseline-B,Dataset1,Accuracy,0.0,42,2025-01-01T00:00:00,placeholder

@@ -18,7 +18,7 @@ This skill provides a lightweight bridge script (`scripts/claude_bridge.py`)
 that returns structured JSON and supports multi-turn sessions via `SESSION_ID`.
 
 > **Shared rules**: This skill inherits all shared rules from
-> `../../_shared/collaboration-base.md` (core rules, candidates-only
+> `../_shared/collaboration-base.md` (core rules, candidates-only
 > constraint, fallback code-collaboration mode, safety guardrails, and
 > collaboration state capsule format).  Only Claude-specific additions
 > are listed below.
@@ -104,6 +104,6 @@ Each template specifies its input sources, output artifact mappings, and constra
 - For session testing: run one prompt with `--output-format stream-json` and confirm JSON contains `success: true` and a `SESSION_ID`.
 
 ## References
-- `../../_shared/collaboration-base.md` (shared rules)
+- `../_shared/collaboration-base.md` (shared rules)
 - `assets/prompt-template.md` (prompt patterns)
 - `references/shell-quoting.md` (shell quoting/backticks)

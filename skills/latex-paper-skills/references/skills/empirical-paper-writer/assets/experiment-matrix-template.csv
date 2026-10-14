@@ -1,0 +1,7 @@
+experiment_id,type,claim_id,dataset,metric,baselines_involved,our_method_variant,expected_outcome,result_status,notes
+EXP-1-D1,main_comparison,C1,Dataset1,Metric1,SOTA-Method-A; Classic-Baseline-B,full_model,Ours >= SOTA-Method-A,planned,Main comparison on primary benchmark
+EXP-1-D2,main_comparison,C1,Dataset2,Metric1,SOTA-Method-A; Classic-Baseline-B,full_model,Ours >= SOTA-Method-A,planned,Main comparison on secondary benchmark
+EXP-2-ABL1,ablation,C1,Dataset1,Metric1,N/A,w/o core module,Performance drops significantly,planned,Validates core innovation component
+EXP-2-ABL2,ablation,C1,Dataset1,Metric1,N/A,simple replacement,Performance drops moderately,planned,Tests design choice of core module
+EXP-3-ROB1,robustness,C1,Dataset1-noisy,Metric1,SOTA-Method-A,full_model,Ours degrades less than baseline,planned,Robustness under input noise
+EXP-4-EFF1,efficiency,C1,Dataset1,params_M; FLOPs_G; latency_ms,SOTA-Method-A,full_model,Comparable or better efficiency,planned,Computational cost comparison

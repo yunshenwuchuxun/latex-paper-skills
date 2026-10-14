@@ -1,0 +1,4 @@
+name,paper_title,arxiv_id,code_url,category,datasets_tested,metrics_reported,strengths,weaknesses,selected,selection_reason
+SOTA-Method-A,Title of SOTA Paper A,2024.xxxxx,https://github.com/org/repo-a,direct_competitor,Dataset1; Dataset2,Metric1=XX.X; Metric2=YY.Y,Strong on X; recent SOTA,Weak on Y; no public weights,yes,Current SOTA on primary benchmark
+Classic-Baseline-B,Title of Classic Paper B,2020.yyyyy,https://github.com/org/repo-b,foundational,Dataset1,Metric1=XX.X,Well-established; widely cited,Older architecture; lower performance,yes,Standard baseline for field
+Ours-minus-core,N/A (ablation anchor),N/A,N/A,ablation_anchor,Dataset1; Dataset2,TBD,Same pipeline minus core innovation,Missing key contribution module,yes,Ablation anchor to validate core module

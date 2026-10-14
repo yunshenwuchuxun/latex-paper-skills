@@ -69,9 +69,34 @@
 
 ## 快速开始
 
+### 通过 npx 安装
+
+在论文项目目录运行，选择你使用的智能体：
+
+```bash
+npx skills@latest add yunshenwuchuxun/latex-paper-skills --skill latex-paper-skills
+```
+
+当前项目安装到 Codex，可跳过交互选择：
+
+```bash
+npx skills@latest add yunshenwuchuxun/latex-paper-skills --skill latex-paper-skills --agent codex --yes
+```
+
+Claude Code 用户将 `--agent codex` 换成 `--agent claude-code`；全局安装追加
+`--global`。安装后可直接说：`Use latex-paper-skills. My topic is: <你的主题>`。
+这里使用现有的 [Skills CLI](https://github.com/vercel-labs/skills)，无需另发 npm
+包，使用者也无需 npm 账号。
+
+安装目录 `skills/latex-paper-skills/` 内含全部 8 个工作流、`_shared`、脚本和
+模板。请选择完整包：单独安装 `.codex/skills/` 下的源码技能会遗漏跨目录
+依赖。开发源码仍位于 `.codex/skills/`；修改后运行
+`python3 scripts/build_distribution.py` 重新生成安装包。
+各平台发布方式见[分发与发布说明](distribution/README.md)。
+
 ### 前置要求
 
-- Python 3.8+
+- Python 3.10+
 - LaTeX 环境（`pdflatex` + `bibtex`，或 `latexmk`）
 - 能读取 `SKILL.md` 的 AI 智能体运行时（Codex CLI、Claude Code 等）
 

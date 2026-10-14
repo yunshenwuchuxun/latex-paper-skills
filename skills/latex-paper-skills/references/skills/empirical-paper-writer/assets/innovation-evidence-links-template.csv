@@ -1,0 +1,2 @@
+innovation_id,claim_id,issue_id,artifact_path,what_to_verify,status,notes
+I1,C1,,brief/evidence-matrix.csv,Map claim to experiments/metrics,planned,

@@ -1,5 +1,6 @@
 ## Core latex/pdflatex auxiliary files:
 .DS_Store
+dist/
 .gemini_cli_home/
 __pycache__/
 *.pyc

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import re
+import shlex
 import subprocess
 import sys
 from pathlib import Path
@@ -55,6 +56,10 @@ def emit_instructions(route: str, project_dir: Path) -> None:
         "empirical": "empirical-paper-writer",
     }
     skill = skill_map[route]
+    plan_script_name = "create_paper_plan.py" if route == "review" else "create_empirical_plan.py"
+    plan_script = _SKILL_ROOT.parent / skill / "scripts" / plan_script_name
+    plan_command = f"python3 {shlex.quote(str(plan_script))}"
+    project_arg = shlex.quote(str(project_dir))
 
     print(f"Route: {route}")
     print(f"Downstream skill: {skill}")
@@ -67,22 +72,22 @@ def emit_instructions(route: str, project_dir: Path) -> None:
         print(f"2. Set <paper_dir> = {project_dir}")
         print("3. Skip Gate 0 scaffolding (project already exists).")
         print("4. Use the Existing Paper Workflow:")
-        print(f"     python3 scripts/create_paper_plan.py \\")
-        print(f'       --topic "$(head -1 {project_dir}/brief/topic-brief.md)" \\')
-        print(f"       --stage plan --output-dir {project_dir}")
+        print(f"     {plan_command} \\")
+        print('       --topic "<topic from brief/topic-brief.md>" \\')
+        print(f"       --stage plan --output-dir {project_arg}")
         print("5. After approval, create issues:")
-        print(f"     python3 scripts/create_paper_plan.py \\")
-        print(f'       --topic "..." --stage issues \\')
-        print(f"       --timestamp <TS> --slug <slug> \\")
-        print(f"       --output-dir {project_dir} --with-literature-notes")
+        print(f"     {plan_command} \\")
+        print('       --topic "<topic from brief/topic-brief.md>" --stage issues \\')
+        print('       --timestamp "<TS>" --slug "<slug>" \\')
+        print(f"       --output-dir {project_arg} --with-literature-notes")
         print("6. Proceed to Phase 1.5 (Literature Enrichment Gate).")
     else:
         print(f"1. Open the {skill} skill.")
         print(f"2. Set <paper_dir> = {project_dir}")
-        print("3. Run bootstrap with --stage kickoff:")
-        print(f"     python3 scripts/bootstrap_ieee_empirical_paper.py \\")
-        print(f'       --stage kickoff --topic "$(head -1 {project_dir}/brief/topic-brief.md)" \\')
-        print(f"       --output-dir {project_dir}")
+        print("3. Create the empirical plan in the existing project directory:")
+        print(f"     {plan_command} \\")
+        print('       --topic "<topic from brief/topic-brief.md>" \\')
+        print(f"       --stage plan --output-dir {project_arg}")
         print("4. Import the contribution-map and evidence-matrix into the")
         print("   empirical plan (method-components, baselines, experiment-matrix).")
         print("5. Proceed to Phase 0.5 (Method Design Gate).")

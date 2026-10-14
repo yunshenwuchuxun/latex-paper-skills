@@ -70,9 +70,35 @@ Both writer skills enforce strict gates:
 
 ## Quick Start
 
+### Install with npx
+
+Install the complete suite for your agent from any paper project:
+
+```bash
+npx skills@latest add yunshenwuchuxun/latex-paper-skills --skill latex-paper-skills
+```
+
+For a non-interactive Codex installation in the current project:
+
+```bash
+npx skills@latest add yunshenwuchuxun/latex-paper-skills --skill latex-paper-skills --agent codex --yes
+```
+
+Use `--agent claude-code` for Claude Code, or add `--global` for a user-level
+installation. Then ask: `Use latex-paper-skills. My topic is: <your topic>`.
+This uses the existing [Skills CLI](https://github.com/vercel-labs/skills); no
+separate npm package or npm account is needed.
+
+The installable directory is `skills/latex-paper-skills/`. It includes all eight
+workflows, `_shared`, scripts, and templates. Install this complete package:
+installing individual source folders under `.codex/skills/` omits their shared
+dependencies. Source development continues under `.codex/skills/`; rebuild the
+package with `python3 scripts/build_distribution.py` after source changes.
+See [distribution and publishing](distribution/README.md) for registry details.
+
 ### Prerequisites
 
-- Python 3.8+
+- Python 3.10+
 - LaTeX environment (`pdflatex` + `bibtex`, or `latexmk`)
 - AI agent runtime that reads `SKILL.md` (Codex CLI, Claude Code, etc.)
 
