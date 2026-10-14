@@ -100,3 +100,79 @@ This CLI requires Node.js 22+ and a logged-in LobeHub account with GitHub
 connected. `skill publish` updates a claimed listing; it cannot create a new
 unindexed listing and does not provide `--dry-run`. Keep the root `SKILL.md`,
 MIT `LICENSE`, and LPPL notices in the uploaded package.
+
+**CLI 0.0.41 upload issue:** its SDK sends FormData with a JSON Content-Type
+header. If it reports `Failed to parse form data`, use a native multipart
+request to the same official endpoint and let `fetch` set the boundary. The
+following method was used successfully for this repository's complete package:
+
+```js
+import { readFile } from 'node:fs/promises';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
+
+// Run the official CLI's skill list command first to refresh the login session.
+const credentials = JSON.parse(await readFile(
+  join(homedir(), '.lobehub-market/user-credentials.json'), 'utf8',
+));
+const identifier = 'yunshenwuchuxun-latex-paper-skills';
+const zip = await readFile('dist/latex-paper-skills-0.1.0.zip');
+const form = new FormData();
+form.append('file', new Blob([zip], { type: 'application/zip' }), `${identifier}.zip`);
+const response = await fetch(
+  `${credentials.baseUrl}/api/v1/user/skills/${encodeURIComponent(identifier)}/versions`,
+  {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${credentials.accessToken}`,
+      'User-Agent': 'LobeHub-Market-CLI/0.0.41',
+    },
+    body: form,
+  },
+);
+if (!response.ok) throw new Error(`LobeHub publication returned HTTP ${response.status}`);
+console.log(await response.json());
+```
+
+After a timeout, inspect the owned listing and its downloadable version before
+retrying; a timeout alone does not establish whether publication completed.
+The marketplace assigns its own version numbers: the suite's source `0.1.0`
+was published as platform version `1.0.2`. See the
+[LobeHub listing](https://lobehub.com/skills/yunshenwuchuxun-latex-paper-skills).
+
+## Standalone npm package
+
+The repository also defines the public npm package `latex-paper-skills`, version
+`0.1.0`, with the `latex-paper-skills` executable. It ships the complete skill
+directory and depends on the tested Skills CLI `1.7.2`; users need Node.js
+`22.20.0` or newer to install it. There are no install lifecycle hooks, and skill
+resources are already generated and included.
+
+Before publication, validate and pack from the repository root:
+
+```bash
+npm ci
+npm run check:distribution
+npm test
+npm pack --pack-destination dist
+npm publish --dry-run --access public
+```
+
+The publication command, when ready to release to npm, is:
+
+```bash
+npm publish --access public
+```
+
+After npm publication, users can run:
+
+```bash
+npx latex-paper-skills --agent codex --yes
+npx latex-paper-skills --agent claude-code --global
+npx latex-paper-skills list
+```
+
+Without an agent flag, the Skills CLI handles agent discovery and selection.
+An installation targets the current project by default; `--global` explicitly
+selects a user-level installation. The wrapper forwards official installer
+options while always selecting the bundled `latex-paper-skills` entry.

@@ -96,6 +96,28 @@ dependencies. Source development continues under `.codex/skills/`; rebuild the
 package with `python3 scripts/build_distribution.py` after source changes.
 See [distribution and publishing](distribution/README.md) for registry details.
 
+### Standalone npm package
+
+The repository is ready to publish as the npm package `latex-paper-skills`,
+including the complete skill and its installation command. After npm publication:
+
+```bash
+npx latex-paper-skills --agent codex --yes
+npx latex-paper-skills --agent claude-code --global
+```
+
+The installer requires Node.js 22.20.0+ and preserves all bundled dependencies.
+There are no install lifecycle hooks. Maintainers can build a release tarball
+with `npm pack --pack-destination dist`; see the
+[npm publishing steps](distribution/README.md#standalone-npm-package).
+
+### Marketplaces
+
+- [ClawHub bundle](https://clawhub.ai/yunshenwuchuxun/plugins/latex-paper-skills):
+  `openclaw plugins install clawhub:@yunshenwuchuxun/latex-paper-skills@0.1.0`
+- [LobeHub skill](https://lobehub.com/skills/yunshenwuchuxun-latex-paper-skills):
+  marketplace version `1.0.2`, containing the complete source bundle `0.1.0`.
+
 ### Prerequisites
 
 - Python 3.10+

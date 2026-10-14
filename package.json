@@ -1,0 +1,50 @@
+{
+  "name": "latex-paper-skills",
+  "version": "0.1.0",
+  "description": "Install a complete ML/AI academic LaTeX paper skill suite for Codex, Claude Code, and other agents",
+  "type": "module",
+  "bin": {
+    "latex-paper-skills": "bin/latex-paper-skills.mjs"
+  },
+  "files": [
+    "bin/latex-paper-skills.mjs",
+    "skills/latex-paper-skills",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md",
+    "README.md",
+    "README.zh-CN.md",
+    "distribution/README.md"
+  ],
+  "engines": {
+    "node": ">=22.20.0"
+  },
+  "dependencies": {
+    "skills": "1.7.2"
+  },
+  "scripts": {
+    "build:distribution": "python3 scripts/build_distribution.py --archive --clawhub",
+    "check:distribution": "python3 scripts/build_distribution.py --check",
+    "test": "node --test tests/npm-cli.test.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yunshenwuchuxun/latex-paper-skills.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yunshenwuchuxun/latex-paper-skills/issues"
+  },
+  "homepage": "https://github.com/yunshenwuchuxun/latex-paper-skills#readme",
+  "license": "MIT",
+  "keywords": [
+    "agent-skills",
+    "latex",
+    "academic-writing",
+    "research",
+    "codex",
+    "claude-code"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}

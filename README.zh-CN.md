@@ -94,6 +94,27 @@ Claude Code 用户将 `--agent codex` 换成 `--agent claude-code`；全局安�
 `python3 scripts/build_distribution.py` 重新生成安装包。
 各平台发布方式见[分发与发布说明](distribution/README.md)。
 
+### 独立 npm 包
+
+仓库已具备 npm 包 `latex-paper-skills` 的发布配置，包含完整技能和安装命令。
+发布到 npm 后可直接运行：
+
+```bash
+npx latex-paper-skills --agent codex --yes
+npx latex-paper-skills --agent claude-code --global
+```
+
+安装器需要 Node.js 22.20.0+，完整保留技能的共享依赖，没有安装生命周期脚本。
+维护者可用 `npm pack --pack-destination dist` 生成发行包；发布步骤见
+[npm 分发说明](distribution/README.md#standalone-npm-package)。
+
+### 平台市场
+
+- [ClawHub 完整插件包](https://clawhub.ai/yunshenwuchuxun/plugins/latex-paper-skills)：
+  `openclaw plugins install clawhub:@yunshenwuchuxun/latex-paper-skills@0.1.0`
+- [LobeHub 完整技能](https://lobehub.com/skills/yunshenwuchuxun-latex-paper-skills)：
+  平台版本 `1.0.2`，包含源码版本 `0.1.0` 的全部内容。
+
 ### 前置要求
 
 - Python 3.10+
